@@ -56,7 +56,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
   const [timeString, setTimeString] = useState<string>('');
   const [dateString, setDateString] = useState<string>('');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-  const [lyricsFontSize, setLyricsFontSize] = useState<number>(16);
+  const [lyricsFontSize, setLyricsFontSize] = useState<number>(18);
 
   // Live Digital Clock & Date for Wall Monitor Mode
   useEffect(() => {
@@ -122,8 +122,8 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-[#0B0D11] text-[#EDEFF3] flex flex-col justify-between overflow-hidden animate-in fade-in duration-500 selection:bg-accent-primary selection:text-white">
       
-      {/* Dynamic Ambient Blurred Backdrop */}
-      {currentTrack.coverUrl && (
+      {/* Blurred Cover Art Background Backdrop (Background chính làm bằng Cover Art Blur) */}
+      {currentTrack.coverUrl ? (
         <div 
           className="absolute inset-0 pointer-events-none z-0 overflow-hidden"
           aria-hidden="true"
@@ -131,17 +131,19 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
           <img 
             src={currentTrack.coverUrl} 
             alt="" 
-            className={`w-full h-full object-cover blur-3xl opacity-25 scale-125 transition-all duration-1000 ${
-              isPlaying ? 'animate-pulse-slow' : 'grayscale-[40%]'
+            className={`w-full h-full object-cover blur-3xl opacity-55 scale-125 brightness-50 contrast-125 transition-all duration-1000 ${
+              isPlaying ? 'animate-pulse-slow' : 'grayscale-[20%]'
             }`} 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D11] via-[#0B0D11]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D11]/90 via-[#0B0D11]/60 to-[#0B0D11]/40" />
         </div>
+      ) : (
+        <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-br from-amber-950/40 via-[#0B0D11] to-purple-950/40" />
       )}
 
       {/* Top Studio Monitor Navigation Header */}
       <div className="relative z-10 flex items-center justify-between p-4 sm:p-6 border-b border-white/10 shrink-0 bg-black/40 backdrop-blur-xl">
-        {/* Left: Digital Clock & Date (Hanging Screen Display) */}
+        {/* Left: Digital Clock & Date */}
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-2xl bg-accent-primary/20 border border-accent-primary/40 flex items-center justify-center text-accent-primary shadow-accent-glow">
             <Radio className="w-5 h-5 animate-pulse" />
@@ -160,7 +162,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
         </div>
 
         {/* Center Title Badge */}
-        <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.05] border border-white/10 text-xs font-mono">
+        <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.08] border border-white/14 text-xs font-mono">
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           <span className="text-text-primary font-semibold">AudioVault Wall Monitor Engine</span>
           <span className="opacity-40">|</span>
@@ -198,11 +200,11 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
         </div>
       </div>
 
-      {/* Main Studio Display Stage */}
+      {/* Main Studio Display Stage (Hidden Scrollbar) */}
       <div className="relative z-10 flex-1 p-4 sm:p-6 lg:p-10 overflow-hidden flex items-center justify-center">
         {hasLyrics ? (
           /* ==================== LAYOUT 1: 4:6 SPLIT LAYOUT (HAS LYRICS) ==================== */
-          <div className="w-full h-full max-w-7xl grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-12 items-center overflow-y-auto lg:overflow-hidden">
+          <div className="w-full h-full max-w-7xl grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-12 items-center overflow-y-auto lg:overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             
             {/* Left 40% (4 Columns): 3D Vinyl Stage & Controls */}
             <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-6 text-center">
@@ -212,7 +214,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                 {/* Spinning Vinyl Record sliding out */}
                 <div 
                   className={`absolute w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-full bg-gradient-to-tr from-neutral-950 via-neutral-900 to-neutral-950 shadow-2xl border-4 border-neutral-800 flex items-center justify-center transition-all duration-700 ${
-                    isPlaying ? 'translate-x-10 sm:translate-x-12 rotate-spin' : 'translate-x-2'
+                    isPlaying ? 'translate-x-10 sm:translate-x-12' : 'translate-x-2'
                   }`}
                   style={{
                     animation: isPlaying ? 'spin 12s linear infinite' : 'none',
@@ -233,7 +235,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                   </div>
                 </div>
 
-                {/* Cover Art Box */}
+                {/* Cover Art Box (Không có tín hiệu chấm xanh) */}
                 <div className="relative z-10 w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-2xl overflow-hidden glass-dock border-2 border-white/20 shadow-2xl p-2 bg-black/60">
                   <div className="w-full h-full rounded-xl overflow-hidden relative group">
                     {currentTrack.coverUrl ? (
@@ -241,11 +243,6 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-amber-500/20 via-purple-600/20 to-black flex items-center justify-center">
                         <Disc className="w-24 h-24 text-accent-primary animate-spin-slow" />
-                      </div>
-                    )}
-                    {isPlaying && (
-                      <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center pointer-events-none">
-                        <span className="w-4 h-4 rounded-full bg-accent-primary animate-ping" />
                       </div>
                     )}
                   </div>
@@ -326,7 +323,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
 
             </div>
 
-            {/* Right 60% (6 Columns): High-End Lyrics HUD */}
+            {/* Right 60% (6 Columns): High-End Lyrics HUD (Ẩn thanh Scrollbar) */}
             <div className="lg:col-span-6 h-full min-h-[400px] lg:min-h-0 glass-dock rounded-3xl p-6 sm:p-8 border border-white/16 shadow-2xl flex flex-col space-y-4">
               
               {/* Lyrics HUD Header & Font Controls */}
@@ -355,9 +352,9 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                 </div>
               </div>
 
-              {/* Lyrics Scrollable Panel */}
+              {/* Lyrics Scrollable Panel - Hidden Scrollbar */}
               <div 
-                className="flex-1 overflow-y-auto space-y-4 font-sans text-text-primary leading-relaxed pr-3 scrollbar-thin"
+                className="flex-1 overflow-y-auto space-y-4 font-sans text-text-primary leading-relaxed pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                 style={{ fontSize: `${lyricsFontSize}px` }}
               >
                 {currentTrack.lyrics?.split('\n').map((line, idx) => (
@@ -381,7 +378,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
               {/* Spinning Vinyl Disc */}
               <div 
                 className={`absolute w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-gradient-to-tr from-neutral-950 via-neutral-900 to-neutral-950 shadow-2xl border-4 border-neutral-800 flex items-center justify-center transition-all duration-700 ${
-                  isPlaying ? 'translate-x-14 sm:translate-x-16 rotate-spin' : 'translate-x-4'
+                  isPlaying ? 'translate-x-14 sm:translate-x-16' : 'translate-x-4'
                 }`}
                 style={{
                   animation: isPlaying ? 'spin 12s linear infinite' : 'none',
@@ -402,7 +399,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                 </div>
               </div>
 
-              {/* Cover Art Box */}
+              {/* Cover Art Box (Không có tín hiệu chấm xanh) */}
               <div className="relative z-10 w-64 h-64 sm:w-80 sm:h-80 rounded-3xl overflow-hidden glass-dock border-2 border-white/20 shadow-2xl p-3 bg-black/60">
                 <div className="w-full h-full rounded-2xl overflow-hidden relative">
                   {currentTrack.coverUrl ? (
@@ -410,11 +407,6 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-amber-500/20 via-purple-600/20 to-black flex items-center justify-center">
                       <Disc className="w-32 h-32 text-accent-primary animate-spin-slow" />
-                    </div>
-                  )}
-                  {isPlaying && (
-                    <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center pointer-events-none">
-                      <span className="w-6 h-6 rounded-full bg-accent-primary animate-ping" />
                     </div>
                   )}
                 </div>
