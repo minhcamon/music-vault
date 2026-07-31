@@ -20,7 +20,7 @@ const defaultTrack: Track = {
   id: 'none',
   title: 'Chưa chọn bài hát',
   artist: 'AudioVault Hi-Fi',
-  album: 'Chưa có nhạc',
+  album: 'Chưa có nhạc trong CSDL',
   duration: 0,
   format: 'FLAC',
   sampleRate: '96kHz',
@@ -40,7 +40,7 @@ export function useAudioPlayer() {
   const [repeatMode, setRepeatMode] = useState<RepeatMode>('off');
   const [isShuffle, setIsShuffle] = useState<boolean>(false);
 
-  // Initialize HTML5 Audio Element once
+  // Initialize HTML5 Audio Element
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
@@ -50,13 +50,25 @@ export function useAudioPlayer() {
 
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime || 0);
     const handleLoadedMetadata = () => setDuration(audio.duration || 0);
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleError = (e: Event) => {
+      console.error('Audio element error:', e);
+      setIsPlaying(false);
+    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('error', handleError);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('error', handleError);
     };
   }, []);
 
@@ -89,10 +101,13 @@ export function useAudioPlayer() {
       if (audioRef.current) {
         const streamUrl = api.getStreamUrl(song.id);
         audioRef.current.src = streamUrl;
-        audioRef.current.play().then(() => setIsPlaying(true)).catch((err) => {
-          console.warn('Playback error:', err);
-          setIsPlaying(false);
-        });
+        audioRef.current
+          .play()
+          .then(() => setIsPlaying(true))
+          .catch((err) => {
+            console.warn('Playback play() promise error:', err);
+            setIsPlaying(false);
+          });
       }
     },
     [queue]
@@ -172,7 +187,9 @@ export function useAudioPlayer() {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      audioRef.current.play().then(() => setIsPlaying(true)).catch((err) => {
+        console.warn('Playback error:', err);
+      });
     }
   };
 
