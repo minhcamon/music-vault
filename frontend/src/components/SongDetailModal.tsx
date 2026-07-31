@@ -58,6 +58,18 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [lyricsFontSize, setLyricsFontSize] = useState<number>(18);
 
+  // Lock body scroll when modal is open to eradicate page scrollbars
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Live Digital Clock & Date for Wall Monitor Mode
   useEffect(() => {
     const updateClock = () => {
@@ -120,7 +132,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
   const totalDuration = duration || currentTrack.duration || 1;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0B0D11] text-[#EDEFF3] flex flex-col justify-between overflow-hidden animate-in fade-in duration-500 selection:bg-accent-primary selection:text-white [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+    <div className="fixed inset-0 z-50 bg-[#0B0D11] text-[#EDEFF3] flex flex-col justify-between overflow-hidden animate-in fade-in duration-500 selection:bg-accent-primary selection:text-white no-scrollbar">
       
       {/* Blurred Cover Art Background Backdrop */}
       {currentTrack.coverUrl ? (
@@ -215,10 +227,10 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
       </div>
 
       {/* Main Studio Display Stage (Hidden Scrollbar Everywhere) */}
-      <div className="relative z-10 flex-1 p-4 sm:p-6 lg:p-10 overflow-hidden flex items-center justify-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="relative z-10 flex-1 p-4 sm:p-6 lg:p-10 overflow-hidden flex items-center justify-center no-scrollbar">
         {hasLyrics ? (
           /* ==================== LAYOUT 1: 4:6 SPLIT LAYOUT (HAS LYRICS) ==================== */
-          <div className="w-full h-full max-w-7xl grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-12 items-center overflow-y-auto lg:overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="w-full h-full max-w-7xl grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-12 items-center overflow-y-auto lg:overflow-hidden no-scrollbar">
             
             {/* Left 40% (4 Columns): 3D Vinyl Stage & Controls */}
             <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-6 text-center">
@@ -368,7 +380,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
 
               {/* Lyrics Scrollable Panel - Hidden Scrollbar */}
               <div 
-                className="flex-1 overflow-y-auto space-y-4 font-sans text-text-primary leading-relaxed pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                className="flex-1 overflow-y-auto space-y-4 font-sans text-text-primary leading-relaxed pr-1 no-scrollbar"
                 style={{ fontSize: `${lyricsFontSize}px` }}
               >
                 {currentTrack.lyrics?.split('\n').map((line, idx) => (
@@ -385,7 +397,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
           </div>
         ) : (
           /* ==================== LAYOUT 2: CENTERED VINYL STAGE (NO LYRICS) ==================== */
-          <div className="w-full max-w-xl flex flex-col items-center justify-center space-y-8 text-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="w-full max-w-xl flex flex-col items-center justify-center space-y-8 text-center no-scrollbar">
             
             {/* Centered 3D Vinyl Stage */}
             <div className="relative w-72 h-72 sm:w-96 sm:h-96 flex items-center justify-center group">
