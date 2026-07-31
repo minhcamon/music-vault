@@ -120,9 +120,9 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
   const totalDuration = duration || currentTrack.duration || 1;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0B0D11] text-[#EDEFF3] flex flex-col justify-between overflow-hidden animate-in fade-in duration-500 selection:bg-accent-primary selection:text-white">
+    <div className="fixed inset-0 z-50 bg-[#0B0D11] text-[#EDEFF3] flex flex-col justify-between overflow-hidden animate-in fade-in duration-500 selection:bg-accent-primary selection:text-white [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       
-      {/* Blurred Cover Art Background Backdrop (Background chính làm bằng Cover Art Blur) */}
+      {/* Blurred Cover Art Background Backdrop */}
       {currentTrack.coverUrl ? (
         <div 
           className="absolute inset-0 pointer-events-none z-0 overflow-hidden"
@@ -131,7 +131,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
           <img 
             src={currentTrack.coverUrl} 
             alt="" 
-            className={`w-full h-full object-cover blur-3xl opacity-55 scale-125 brightness-50 contrast-125 transition-all duration-1000 ${
+            className={`w-full h-full object-cover blur-sm opacity-55 scale-125 brightness-50 contrast-125 transition-all duration-1000 ${
               isPlaying ? 'animate-pulse-slow' : 'grayscale-[20%]'
             }`} 
           />
@@ -141,67 +141,81 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
         <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-br from-amber-950/40 via-[#0B0D11] to-purple-950/40" />
       )}
 
-      {/* Top Studio Monitor Navigation Header */}
-      <div className="relative z-10 flex items-center justify-between p-4 sm:p-6 border-b border-white/10 shrink-0 bg-black/40 backdrop-blur-xl">
-        {/* Left: Digital Clock & Date */}
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-2xl bg-accent-primary/20 border border-accent-primary/40 flex items-center justify-center text-accent-primary shadow-accent-glow">
-            <Radio className="w-5 h-5 animate-pulse" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-accent-primary" />
-              <span className="font-mono font-bold text-base sm:text-lg text-text-primary tracking-widest">
-                {timeString || '18:30:00'}
+      {/* Top Studio Monitor Navigation Header (Ẩn ở Fullscreen, rà chuột lên Top để xuất hiện) */}
+      <div 
+        className={
+          isFullscreen 
+            ? "group/topheader absolute top-0 left-0 right-0 z-50 pt-2 pb-6 px-4 transition-all duration-300 cursor-pointer" 
+            : "relative z-10 shrink-0"
+        }
+      >
+        <div 
+          className={`flex items-center justify-between p-4 sm:p-6 border-b border-white/10 bg-black/40 backdrop-blur-xl transition-all duration-300 ${
+            isFullscreen 
+              ? 'rounded-2xl mx-2 sm:mx-6 mt-2 shadow-2xl -translate-y-full opacity-0 group-hover/topheader:translate-y-0 group-hover/topheader:opacity-100' 
+              : ''
+          }`}
+        >
+          {/* Left: Digital Clock & Date */}
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-2xl bg-accent-primary/20 border border-accent-primary/40 flex items-center justify-center text-accent-primary shadow-accent-glow">
+              <Radio className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 text-accent-primary" />
+                <span className="font-mono font-bold text-base sm:text-lg text-text-primary tracking-widest">
+                  {timeString || '18:30:00'}
+                </span>
+              </div>
+              <span className="text-[11px] font-sans text-text-secondary capitalize block -mt-0.5">
+                {dateString || 'Hi-Fi Wall Monitor'}
               </span>
             </div>
-            <span className="text-[11px] font-sans text-text-secondary capitalize block -mt-0.5">
-              {dateString || 'Hi-Fi Wall Monitor'}
-            </span>
           </div>
-        </div>
 
-        {/* Center Title Badge */}
-        <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.08] border border-white/14 text-xs font-mono">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span className="text-text-primary font-semibold">AudioVault Wall Monitor Engine</span>
-          <span className="opacity-40">|</span>
-          <span className="text-emerald-400 font-bold">LIVE STREAM</span>
-        </div>
+          {/* Center Title Badge */}
+          <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.08] border border-white/14 text-xs font-mono">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-text-primary font-semibold">AudioVault Wall Monitor Engine</span>
+            <span className="opacity-40">|</span>
+            <span className="text-emerald-400 font-bold">LIVE STREAM</span>
+          </div>
 
-        {/* Right Studio Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Live Queue Button */}
-          <button
-            onClick={onOpenLiveQueue}
-            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/14 text-xs font-semibold text-text-primary flex items-center gap-1.5 transition-all hover:scale-105"
-            title="Mở hàng chờ phát nhạc trực tiếp"
-          >
-            <ListMusic className="w-4 h-4 text-accent-primary" />
-            <span className="hidden sm:inline">Hàng chờ</span>
-          </button>
+          {/* Right Studio Controls */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Live Queue Button */}
+            <button
+              onClick={onOpenLiveQueue}
+              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/14 text-xs font-semibold text-text-primary flex items-center gap-1.5 transition-all hover:scale-105"
+              title="Mở hàng chờ phát nhạc trực tiếp"
+            >
+              <ListMusic className="w-4 h-4 text-accent-primary" />
+              <span className="hidden sm:inline">Hàng chờ</span>
+            </button>
 
-          {/* Fullscreen Toggle */}
-          <button
-            onClick={toggleFullscreen}
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/14 text-text-secondary hover:text-text-primary transition-all"
-            title={isFullscreen ? 'Thoát toàn màn hình' : 'Bật toàn màn hình (Treo màn)'}
-          >
-            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-          </button>
+            {/* Fullscreen Toggle */}
+            <button
+              onClick={toggleFullscreen}
+              className="p-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/14 text-text-secondary hover:text-text-primary transition-all"
+              title={isFullscreen ? 'Thoát toàn màn hình' : 'Bật toàn màn hình (Treo màn)'}
+            >
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
 
-          {/* Close Modal Button */}
-          <button
-            onClick={onClose}
-            className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/14 text-text-secondary hover:text-text-primary transition-all"
-          >
-            <X className="w-5 h-5" />
-          </button>
+            {/* Close Modal Button */}
+            <button
+              onClick={onClose}
+              className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/14 text-text-secondary hover:text-text-primary transition-all"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Studio Display Stage (Hidden Scrollbar) */}
-      <div className="relative z-10 flex-1 p-4 sm:p-6 lg:p-10 overflow-hidden flex items-center justify-center">
+      {/* Main Studio Display Stage (Hidden Scrollbar Everywhere) */}
+      <div className="relative z-10 flex-1 p-4 sm:p-6 lg:p-10 overflow-hidden flex items-center justify-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {hasLyrics ? (
           /* ==================== LAYOUT 1: 4:6 SPLIT LAYOUT (HAS LYRICS) ==================== */
           <div className="w-full h-full max-w-7xl grid grid-cols-1 lg:grid-cols-10 gap-6 lg:gap-12 items-center overflow-y-auto lg:overflow-hidden [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
@@ -235,7 +249,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                   </div>
                 </div>
 
-                {/* Cover Art Box (Không có tín hiệu chấm xanh) */}
+                {/* Cover Art Box */}
                 <div className="relative z-10 w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-2xl overflow-hidden glass-dock border-2 border-white/20 shadow-2xl p-2 bg-black/60">
                   <div className="w-full h-full rounded-xl overflow-hidden relative group">
                     {currentTrack.coverUrl ? (
@@ -371,7 +385,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
           </div>
         ) : (
           /* ==================== LAYOUT 2: CENTERED VINYL STAGE (NO LYRICS) ==================== */
-          <div className="w-full max-w-xl flex flex-col items-center justify-center space-y-8 text-center">
+          <div className="w-full max-w-xl flex flex-col items-center justify-center space-y-8 text-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             
             {/* Centered 3D Vinyl Stage */}
             <div className="relative w-72 h-72 sm:w-96 sm:h-96 flex items-center justify-center group">
@@ -399,7 +413,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                 </div>
               </div>
 
-              {/* Cover Art Box (Không có tín hiệu chấm xanh) */}
+              {/* Cover Art Box */}
               <div className="relative z-10 w-64 h-64 sm:w-80 sm:h-80 rounded-3xl overflow-hidden glass-dock border-2 border-white/20 shadow-2xl p-3 bg-black/60">
                 <div className="w-full h-full rounded-2xl overflow-hidden relative">
                   {currentTrack.coverUrl ? (
