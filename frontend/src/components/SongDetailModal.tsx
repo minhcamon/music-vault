@@ -18,7 +18,7 @@ import {
     ZoomIn,
     ZoomOut,
     Radio,
-    Headphone
+    Headphones
 } from 'lucide-react';
 import { Track } from '../types';
 import { RepeatMode } from '../hooks/useAudioPlayer';

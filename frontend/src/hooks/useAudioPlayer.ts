@@ -45,7 +45,9 @@ export function useAudioPlayer() {
   // Initialize HTML5 Audio Element
   useEffect(() => {
     if (!audioRef.current) {
-      audioRef.current = new Audio();
+      const audio = new Audio();
+      audio.crossOrigin = 'anonymous';
+      audioRef.current = audio;
     }
 
     const audio = audioRef.current;

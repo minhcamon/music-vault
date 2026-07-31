@@ -40,7 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navItems = [
     { id: 'albums', label: 'Album', icon: Disc },
-    { id: 'tracks', label: 'Bài hát (Dense List)', icon: Music },
+    { id: 'tracks', label: 'Bài hát', icon: Music },
     { id: 'artists', label: 'Nghệ sĩ', icon: Users },
     { id: 'playlists', label: 'Danh sách phát', icon: ListMusic },
   ];
@@ -73,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className="flex items-center gap-3">
                 <Disc className="w-4 h-4" />
-                <span>Tất cả Album</span>
+                <span>Tất cả</span>
               </div>
               <span className="mono-tech text-xs px-2 py-0.5 rounded bg-white/5 border border-white/10">
                 {sources.reduce((acc, s) => acc + s.trackCount, 0)}
@@ -174,14 +174,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <span className="text-emerald-400 flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> LAN Ready
         </span>
-        <button
-          onClick={onOpenShutdownModal}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-[11px] font-sans font-medium transition-all"
-          title="Tắt máy chủ AudioVault"
-        >
-          <Power className="w-3 h-3 text-rose-400" />
-          <span>Tắt Server</span>
-        </button>
       </div>
     </div>
   );
