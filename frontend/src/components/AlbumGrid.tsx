@@ -9,7 +9,7 @@ interface AlbumGridProps {
   songs: Song[];
   onSelectAlbum: (album: Album) => void;
   onPlayAlbum: (album: Album) => void;
-  onPlaySong: (song: Song) => void;
+  onPlaySong: (song: Song, contextQueue?: Song[]) => void;
   selectedSourceFilterName?: string | null;
 }
 
