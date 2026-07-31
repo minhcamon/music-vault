@@ -14,6 +14,7 @@ export interface AudioPlayerState {
   currentTrack: Track;
   queue: Song[];
   currentIndex: number;
+  disabledSongIds: Set<string>;
 }
 
 const defaultTrack: Track = {
@@ -34,6 +35,7 @@ export function useAudioPlayer() {
 
   const [queue, setQueue] = useState<Song[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [disabledSongIds, setDisabledSongIds] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
@@ -120,7 +122,42 @@ export function useAudioPlayer() {
     [queue]
   );
 
-  // Next Track Logic (Album Loop / Song Loop / Sequential)
+  // Helper to find the next enabled track index (bypassing disabled tracks)
+  const getNextEnabledIndex = useCallback(
+    (startIdx: number, direction: 1 | -1): number => {
+      if (queue.length === 0) return -1;
+      let curr = startIdx + direction;
+      const count = queue.length;
+
+      for (let i = 0; i < count; i++) {
+        if (curr >= count) {
+          if (repeatMode === 'all') {
+            curr = 0;
+          } else {
+            return -1;
+          }
+        } else if (curr < 0) {
+          if (repeatMode === 'all') {
+            curr = count - 1;
+          } else {
+            return 0;
+          }
+        }
+
+        const song = queue[curr];
+        if (song && !disabledSongIds.has(song.id)) {
+          return curr;
+        }
+
+        curr += direction;
+      }
+
+      return -1;
+    },
+    [queue, disabledSongIds, repeatMode]
+  );
+
+  // Next Track Logic (Album Loop / Song Loop / Sequential bypassing disabled tracks)
   const nextTrack = useCallback(() => {
     if (queue.length === 0) return;
 
@@ -132,18 +169,13 @@ export function useAudioPlayer() {
       return;
     }
 
-    let nextIdx = currentIndex + 1;
-    if (nextIdx >= queue.length) {
-      if (repeatMode === 'all') {
-        nextIdx = 0; // Album Loop wrap around
-      } else {
-        setIsPlaying(false);
-        return;
-      }
+    const nextIdx = getNextEnabledIndex(currentIndex, 1);
+    if (nextIdx >= 0) {
+      playTrackAtIndex(nextIdx);
+    } else {
+      setIsPlaying(false);
     }
-
-    playTrackAtIndex(nextIdx);
-  }, [currentIndex, queue, repeatMode, playTrackAtIndex]);
+  }, [currentIndex, queue, repeatMode, getNextEnabledIndex, playTrackAtIndex]);
 
   // Previous Track Logic
   const prevTrack = useCallback(() => {
@@ -154,17 +186,11 @@ export function useAudioPlayer() {
       return;
     }
 
-    let prevIdx = currentIndex - 1;
-    if (prevIdx < 0) {
-      if (repeatMode === 'all') {
-        prevIdx = queue.length - 1; // Album Loop wrap to end
-      } else {
-        prevIdx = 0;
-      }
+    const prevIdx = getNextEnabledIndex(currentIndex, -1);
+    if (prevIdx >= 0) {
+      playTrackAtIndex(prevIdx);
     }
-
-    playTrackAtIndex(prevIdx);
-  }, [currentIndex, queue, repeatMode, playTrackAtIndex]);
+  }, [currentIndex, queue, getNextEnabledIndex, playTrackAtIndex]);
 
   // Handle Track Ended Event (Automatic Song / Album Loop)
   useEffect(() => {
@@ -200,9 +226,37 @@ export function useAudioPlayer() {
     }
   };
 
+  // Toggle single track status in active queue
+  const toggleTrackInQueue = (songId: string) => {
+    setDisabledSongIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(songId)) {
+        next.delete(songId);
+      } else {
+        next.add(songId);
+      }
+      return next;
+    });
+  };
+
+  // Select All / Deselect All queue tracks
+  const selectAllQueueTracks = () => {
+    setDisabledSongIds(new Set());
+  };
+
+  const deselectAllQueueTracks = () => {
+    // Keep only current song enabled if deselect all
+    if (currentSong) {
+      const disabled = new Set(queue.map((s) => s.id));
+      disabled.delete(currentSong.id);
+      setDisabledSongIds(disabled);
+    }
+  };
+
   // Play a full queue starting at index
   const playQueue = (newQueue: Song[], startIndex: number = 0) => {
     setQueue(newQueue);
+    setDisabledSongIds(new Set());
     playTrackAtIndex(startIndex, newQueue);
   };
 
@@ -213,6 +267,7 @@ export function useAudioPlayer() {
     const targetIdx = foundIndex >= 0 ? foundIndex : 0;
 
     setQueue(activeList);
+    setDisabledSongIds(new Set());
     playTrackAtIndex(targetIdx, activeList);
   };
 
@@ -243,6 +298,10 @@ export function useAudioPlayer() {
     currentTrack,
     queue,
     currentIndex,
+    disabledSongIds,
+    toggleTrackInQueue,
+    selectAllQueueTracks,
+    deselectAllQueueTracks,
     playQueue,
     playSong,
     togglePlay,

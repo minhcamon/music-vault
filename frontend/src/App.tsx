@@ -6,6 +6,7 @@ import { TrackList } from './components/TrackList';
 import { ArtistGrid } from './components/ArtistGrid';
 import { PlayerDock } from './components/PlayerDock';
 import { SongDetailModal } from './components/SongDetailModal';
+import { LiveQueueDrawer } from './components/LiveQueueDrawer';
 import { SourceModal } from './components/SourceModal';
 import { Album, MusicSource } from './types';
 import { api, Song, Artist } from './services/api';
@@ -20,9 +21,10 @@ export const App: React.FC = () => {
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Modals States
+  // Modals & Drawers States
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isSongDetailOpen, setIsSongDetailOpen] = useState<boolean>(false);
+  const [isLiveQueueOpen, setIsLiveQueueOpen] = useState<boolean>(false);
   const [isSourceModalOpen, setIsSourceModalOpen] = useState<boolean>(false);
 
   // Audio Player Custom Hook
@@ -32,6 +34,12 @@ export const App: React.FC = () => {
     duration,
     repeatMode,
     currentTrack,
+    queue,
+    currentIndex,
+    disabledSongIds,
+    toggleTrackInQueue,
+    selectAllQueueTracks,
+    deselectAllQueueTracks,
     playSong,
     togglePlay,
     nextTrack,
@@ -244,6 +252,7 @@ export const App: React.FC = () => {
         onToggleRepeat={toggleRepeat}
         onSeek={seek}
         onOpenSongDetail={() => setIsSongDetailOpen(true)}
+        onOpenLiveQueue={() => setIsLiveQueueOpen(true)}
       />
 
       {/* Responsive Desktop & Mobile Fullscreen Current Song Detail View */}
@@ -260,6 +269,20 @@ export const App: React.FC = () => {
         onPrevTrack={prevTrack}
         onToggleRepeat={toggleRepeat}
         onSeek={seek}
+        onOpenLiveQueue={() => setIsLiveQueueOpen(true)}
+      />
+
+      {/* Live Playing Queue Drawer with real-time Checklist toggles */}
+      <LiveQueueDrawer
+        isOpen={isLiveQueueOpen}
+        onClose={() => setIsLiveQueueOpen(false)}
+        queue={queue}
+        currentIndex={currentIndex}
+        disabledSongIds={disabledSongIds}
+        isPlaying={isPlaying}
+        onToggleTrack={toggleTrackInQueue}
+        onSelectAll={selectAllQueueTracks}
+        onDeselectAll={deselectAllQueueTracks}
       />
 
       {/* Source Management Modal */}

@@ -1,5 +1,4 @@
-import React from 'react';
-import { X, Play, Pause, SkipBack, SkipForward, Sparkles, Disc, Repeat, Repeat1, FileText, Music } from 'lucide-react';
+import { X, Play, Pause, SkipBack, SkipForward, Sparkles, Disc, Repeat, Repeat1, FileText, Music, ListMusic } from 'lucide-react';
 import { Track } from '../types';
 import { RepeatMode } from '../hooks/useAudioPlayer';
 
@@ -16,6 +15,7 @@ interface SongDetailModalProps {
   onPrevTrack: () => void;
   onToggleRepeat: () => void;
   onSeek: (seconds: number) => void;
+  onOpenLiveQueue: () => void;
 }
 
 export const SongDetailModal: React.FC<SongDetailModalProps> = ({
@@ -31,6 +31,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
   onPrevTrack,
   onToggleRepeat,
   onSeek,
+  onOpenLiveQueue,
 }) => {
   if (!isOpen) return null;
 
@@ -59,12 +60,23 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
           </div>
         </div>
 
-        <button
-          onClick={onClose}
-          className="p-2 text-text-secondary hover:text-text-primary rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
-        >
-          <X className="w-6 h-6" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpenLiveQueue}
+            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-xs font-semibold text-text-primary flex items-center gap-1.5 transition-all"
+            title="Mở hàng chờ phát nhạc trực tiếp"
+          >
+            <ListMusic className="w-4 h-4 text-accent-primary" />
+            <span>Hàng chờ</span>
+          </button>
+
+          <button
+            onClick={onClose}
+            className="p-2 text-text-secondary hover:text-text-primary rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       {/* Main Content Area: Responsive 4:6 Split or Centered Layout */}

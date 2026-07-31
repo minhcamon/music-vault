@@ -10,7 +10,8 @@ import {
   Maximize2,
   Repeat,
   Repeat1,
-  Disc
+  Disc,
+  ListMusic
 } from 'lucide-react';
 import { Track } from '../types';
 import { RepeatMode } from '../hooks/useAudioPlayer';
@@ -27,6 +28,7 @@ interface PlayerDockProps {
   onToggleRepeat: () => void;
   onSeek: (seconds: number) => void;
   onOpenSongDetail: () => void;
+  onOpenLiveQueue: () => void;
 }
 
 export const PlayerDock: React.FC<PlayerDockProps> = ({
@@ -41,6 +43,7 @@ export const PlayerDock: React.FC<PlayerDockProps> = ({
   onToggleRepeat,
   onSeek,
   onOpenSongDetail,
+  onOpenLiveQueue,
 }) => {
   const [volume, setVolume] = useState(85);
   const [isMuted, setIsMuted] = useState(false);
@@ -89,14 +92,24 @@ export const PlayerDock: React.FC<PlayerDockProps> = ({
             </div>
           </div>
 
-          {/* Fullscreen Player Sheet Trigger Icon */}
-          <button 
-            onClick={onOpenSongDetail} 
-            className="p-2 text-text-secondary hover:text-text-primary hover:bg-white/10 rounded-lg transition-colors"
-            title="Mở màn hình bài hát (Current Song Player Detail)"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
+          {/* Live Queue Drawer & Fullscreen Player Sheet Trigger Icons */}
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={onOpenLiveQueue} 
+              className="p-2 text-text-secondary hover:text-accent-primary hover:bg-white/10 rounded-lg transition-colors"
+              title="Mở hàng chờ đang phát (Live Queue Checklist)"
+            >
+              <ListMusic className="w-4 h-4" />
+            </button>
+
+            <button 
+              onClick={onOpenSongDetail} 
+              className="p-2 text-text-secondary hover:text-text-primary hover:bg-white/10 rounded-lg transition-colors"
+              title="Mở màn hình bài hát (Current Song Player Detail)"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Center: Controls & Seekbar */}
