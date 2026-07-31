@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { Source } from '@prisma/client';
 import { ISourcesRepository } from './sources.repository.interface.js';
 import { CreateSourceDTO, UpdateSourceDTO } from './sources.schema.js';
@@ -21,25 +22,46 @@ export class SourcesService {
   }
 
   async createSource(data: CreateSourceDTO): Promise<Source> {
-    const normalizedPath = path.normalize(data.path.trim());
-    
-    if (!fs.existsSync(normalizedPath)) {
-      throw new AppError(`Đường dẫn thư mục không tồn tại trên hệ thống: "${normalizedPath}". Vui lòng sử dụng tính năng "Duyệt Thư Mục" hoặc nhập đường dẫn tuyệt đối (VD: D:\\Music).`, 400);
+    const rawPath = data.path.trim();
+    let finalPath = path.normalize(rawPath);
+
+    // Smart path resolution
+    if (!fs.existsSync(finalPath)) {
+      const cwdResolved = path.resolve(process.cwd(), rawPath);
+      const homeResolved = path.join(os.homedir(), rawPath);
+
+      if (fs.existsSync(cwdResolved)) {
+        finalPath = cwdResolved;
+      } else if (fs.existsSync(homeResolved)) {
+        finalPath = homeResolved;
+      } else {
+        // Automatically create folder if user entered a new valid directory name
+        try {
+          fs.mkdirSync(finalPath, { recursive: true });
+        } catch (err) {
+          try {
+            finalPath = cwdResolved;
+            fs.mkdirSync(finalPath, { recursive: true });
+          } catch (mkdirErr: any) {
+            throw new AppError(`Không thể tạo hoặc truy cập thư mục: "${rawPath}". Chi tiết: ${mkdirErr.message}`, 400);
+          }
+        }
+      }
     }
 
-    const stat = fs.statSync(normalizedPath);
+    const stat = fs.statSync(finalPath);
     if (!stat.isDirectory()) {
-      throw new AppError(`Đường dẫn được chọn không phải là một thư mục: "${normalizedPath}"`, 400);
+      throw new AppError(`Đường dẫn được chọn không phải là một thư mục: "${finalPath}"`, 400);
     }
 
-    const existing = await this.sourcesRepository.findByPath(normalizedPath);
+    const existing = await this.sourcesRepository.findByPath(finalPath);
     if (existing) {
-      throw new AppError(`Thư mục này đã được thêm làm nguồn nhạc trước đó: "${normalizedPath}"`, 400);
+      throw new AppError(`Thư mục này đã được thêm làm nguồn nhạc trước đó: "${finalPath}"`, 400);
     }
 
     return this.sourcesRepository.create({
       name: data.name.trim(),
-      path: normalizedPath,
+      path: finalPath,
     });
   }
 
