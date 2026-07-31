@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Play, Pause, SkipBack, SkipForward, Sparkles, Volume2, Disc, Repeat, Repeat1, FileText, Music } from 'lucide-react';
+import { X, Play, Pause, SkipBack, SkipForward, Sparkles, Disc, Repeat, Repeat1, FileText, Music } from 'lucide-react';
 import { Track } from '../types';
 import { RepeatMode } from '../hooks/useAudioPlayer';
 
@@ -75,11 +75,15 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
             {/* Left 40% (4 Columns): Album Cover & Track Controls */}
             <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-6 text-center">
               {/* Album Art Container */}
-              <div className="relative w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-2xl overflow-hidden glass-panel border-2 border-white/14 shadow-2xl p-4 flex items-center justify-center bg-black/40 group">
+              <div className="relative w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-2xl overflow-hidden glass-panel border-2 border-white/14 shadow-2xl p-3 flex items-center justify-center bg-black/40 group">
                 <div className="w-full h-full rounded-xl bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center relative overflow-hidden">
-                  <Disc className="w-28 h-28 text-accent-primary animate-spin-slow" />
+                  {currentTrack.coverUrl ? (
+                    <img src={currentTrack.coverUrl} alt={currentTrack.album} className="w-full h-full object-cover rounded-xl" />
+                  ) : (
+                    <Disc className="w-28 h-28 text-accent-primary animate-spin-slow" />
+                  )}
                   {isPlaying && (
-                    <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center pointer-events-none">
                       <span className="w-4 h-4 rounded-full bg-accent-primary animate-ping" />
                     </div>
                   )}
@@ -178,11 +182,15 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
           /* ==================== LAYOUT 2: CENTERED LAYOUT (NO LYRICS) ==================== */
           <div className="w-full max-w-md flex flex-col items-center justify-center space-y-6 text-center">
             {/* Centered Vinyl Cover Container */}
-            <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-3xl overflow-hidden glass-dock border-2 border-white/16 shadow-2xl p-4 flex items-center justify-center bg-black/40">
+            <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-3xl overflow-hidden glass-dock border-2 border-white/16 shadow-2xl p-3 flex items-center justify-center bg-black/40">
               <div className="w-full h-full rounded-2xl bg-gradient-to-br from-white/5 to-white/10 flex items-center justify-center relative overflow-hidden">
-                <Disc className="w-36 h-36 text-accent-primary animate-spin-slow" />
+                {currentTrack.coverUrl ? (
+                  <img src={currentTrack.coverUrl} alt={currentTrack.album} className="w-full h-full object-cover rounded-2xl" />
+                ) : (
+                  <Disc className="w-36 h-36 text-accent-primary animate-spin-slow" />
+                )}
                 {isPlaying && (
-                  <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] flex items-center justify-center pointer-events-none">
                     <span className="w-6 h-6 rounded-full bg-accent-primary animate-ping" />
                   </div>
                 )}

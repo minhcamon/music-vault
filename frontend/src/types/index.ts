@@ -10,6 +10,7 @@ export interface Track {
   bitrate: number;   // kbps, e.g. 5644
   trackNumber: number;
   lyrics?: string | null;
+  coverUrl?: string;
 }
 
 export interface Album {

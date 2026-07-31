@@ -66,8 +66,12 @@ export const PlayerDock: React.FC<PlayerDockProps> = ({
             className="flex items-center gap-3 cursor-pointer min-w-0 group"
             title="Mở giao diện chi tiết bài hát (Lyrics / Visualizer)"
           >
-            <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/14 shrink-0 relative flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Disc className="w-6 h-6 text-accent-primary animate-spin-slow" />
+            <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/14 shrink-0 relative flex items-center justify-center">
+              {currentTrack.coverUrl ? (
+                <img src={currentTrack.coverUrl} alt={currentTrack.album} className="w-full h-full object-cover" />
+              ) : (
+                <Disc className="w-6 h-6 text-accent-primary animate-spin-slow" />
+              )}
               {isPlaying && (
                 <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
                   <span className="w-2 h-2 rounded-full bg-accent-primary animate-ping" />

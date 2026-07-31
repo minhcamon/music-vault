@@ -74,6 +74,11 @@ export function useAudioPlayer() {
 
   const currentSong = currentIndex >= 0 && currentIndex < queue.length ? queue[currentIndex] : null;
 
+  const rawCover = currentSong?.coverUrl || currentSong?.album?.coverUrl;
+  const coverUrl = rawCover
+    ? rawCover.startsWith('http') ? rawCover : `http://localhost:3001${rawCover}`
+    : undefined;
+
   const currentTrack: Track = currentSong
     ? {
         id: currentSong.id,
@@ -86,6 +91,8 @@ export function useAudioPlayer() {
         bitDepth: currentSong.bitDepth ? `${currentSong.bitDepth}-bit` : '24-bit',
         bitrate: 3120,
         trackNumber: currentSong.trackNumber || 1,
+        lyrics: currentSong.lyrics,
+        coverUrl,
       }
     : defaultTrack;
 
