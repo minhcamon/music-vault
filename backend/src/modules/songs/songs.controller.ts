@@ -34,31 +34,45 @@ export class SongsController {
       '.alac': 'audio/mp4',
       '.ogg': 'audio/ogg',
     };
-    const contentType = contentTypeMap[ext] || 'audio/mpeg';
+    const contentType = contentTypeMap[ext] || 'audio/flac';
+
+    // Set CORS & Range Expose headers for browser HTML5 Audio element
+    reply.raw.setHeader('Access-Control-Allow-Origin', '*');
+    reply.raw.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    reply.raw.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Authorization');
+    reply.raw.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+    reply.raw.setHeader('Accept-Ranges', 'bytes');
 
     if (range) {
       const parts = range.replace(/bytes=/, '').split('-');
       const start = parseInt(parts[0], 10);
       const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-      const chunksize = end - start + 1;
 
+      if (start >= fileSize || end >= fileSize) {
+        reply.raw.setHeader('Content-Range', `bytes */${fileSize}`);
+        reply.raw.writeHead(416);
+        return reply.raw.end();
+      }
+
+      const chunksize = end - start + 1;
       const fileStream = fs.createReadStream(filePath, { start, end });
 
-      return reply
-        .code(206)
-        .header('Content-Range', `bytes ${start}-${end}/${fileSize}`)
-        .header('Accept-Ranges', 'bytes')
-        .header('Content-Length', chunksize)
-        .header('Content-Type', contentType)
-        .send(fileStream);
+      reply.raw.writeHead(206, {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Content-Length': chunksize,
+        'Content-Type': contentType,
+      });
+
+      reply.hijack();
+      return fileStream.pipe(reply.raw);
     } else {
-      const fileStream = fs.createReadStream(filePath);
-      return reply
-        .code(200)
-        .header('Accept-Ranges', 'bytes')
-        .header('Content-Length', fileSize)
-        .header('Content-Type', contentType)
-        .send(fileStream);
+      reply.raw.writeHead(200, {
+        'Content-Length': fileSize,
+        'Content-Type': contentType,
+      });
+
+      reply.hijack();
+      return fs.createReadStream(filePath).pipe(reply.raw);
     }
   }
 
