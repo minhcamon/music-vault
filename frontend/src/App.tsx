@@ -43,6 +43,7 @@ export const App: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState<boolean>(false);
   const [isSourceModalOpen, setIsSourceModalOpen] = useState<boolean>(false);
+  const [isScanning, setIsScanning] = useState<boolean>(false);
 
   // Load Sources and Songs from Fastify Backend
   useEffect(() => {
@@ -108,14 +109,18 @@ export const App: React.FC = () => {
 
   // Add Source Handler
   const handleAddSource = async (name: string, path: string) => {
+    setIsScanning(true);
     try {
       const newSource = await api.addSource(name, path);
-      await api.scanSource(newSource.id);
+      const scanResult = await api.scanSource(newSource.id);
       await loadBackendData();
+      alert(`Đã kết nối nguồn nhạc "${name}" thành công!\n- Tìm thấy: ${scanResult?.totalAudioFiles || 0} file nhạc.\n- Thêm mới: ${scanResult?.filesAdded || 0} bài.`);
     } catch (err: any) {
-      alert(err.message || 'Lỗi thêm nguồn nhạc');
+      alert(`Lỗi thêm nguồn nhạc:\n${err.message || err}`);
+    } finally {
+      setIsScanning(false);
+      setIsSourceModalOpen(false);
     }
-    setIsSourceModalOpen(false);
   };
 
   // Play Single Song via HTTP Range Streaming URL

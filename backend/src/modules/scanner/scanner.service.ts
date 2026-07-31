@@ -16,7 +16,11 @@ export class ScannerService {
 
   async scanSource(sourceId: string) {
     const source = await this.prisma.source.findUnique({ where: { id: sourceId } });
-    if (!source) throw new AppError(`Source not found: ${sourceId}`, 404);
+    if (!source) throw new AppError(`Nguồn nhạc không tồn tại trong hệ thống: ${sourceId}`, 404);
+
+    if (!fs.existsSync(source.path)) {
+      throw new AppError(`Thư mục không tồn tại trên ổ đĩa: ${source.path}`, 400);
+    }
 
     const scanLog = await this.prisma.scanLog.create({
       data: { sourceId, status: 'IN_PROGRESS' },
@@ -39,49 +43,75 @@ export class ScannerService {
         currentPathSet.add(relativePath);
 
         try {
-          const metadata = await musicMetadata.parseFile(filePath);
-          const title = metadata.common.title || path.basename(filePath, path.extname(filePath));
-          const artistName = metadata.common.artist || metadata.common.albumartist || 'Unknown Artist';
-          const albumTitle = metadata.common.album || 'Unknown Album';
-          const year = metadata.common.year || null;
-          const duration = metadata.format.duration || 0;
-          const format = metadata.format.container || path.extname(filePath).replace('.', '').toUpperCase();
-          const sampleRate = metadata.format.sampleRate || null;
-          const bitDepth = metadata.format.bitsPerSample || null;
-          const bitrate = metadata.format.bitrate
-            ? `${Math.round(metadata.format.bitrate / 1000)} kbps`
-            : bitDepth && sampleRate
-            ? `${bitDepth}-bit / ${sampleRate / 1000}kHz`
-            : 'Lossless';
-          const trackNumber = metadata.common.track.no || null;
-          const discNumber = metadata.common.disk.no || null;
-          const genre = metadata.common.genre ? metadata.common.genre.join(', ') : null;
-
-          // Process Cover Art
+          let title = path.basename(filePath, path.extname(filePath));
+          let artistName = 'Unknown Artist';
+          let albumTitle = 'Unknown Album';
+          let year: number | null = null;
+          let duration = 0;
+          let format = path.extname(filePath).replace('.', '').toUpperCase();
+          let sampleRate: number | null = null;
+          let bitDepth: number | null = null;
+          let bitrate: string | null = 'Lossless';
+          let trackNumber: number | null = null;
+          let discNumber: number | null = null;
+          let genre: string | null = null;
           let coverUrl: string | null = null;
-          if (metadata.common.picture && metadata.common.picture.length > 0) {
-            const picture = metadata.common.picture[0];
-            const coverFileName = `${sourceId}-${Buffer.from(relativePath).toString('hex').substring(0, 16)}.jpg`;
-            const coverPath = path.join(this.publicCoversDir, coverFileName);
-            fs.writeFileSync(coverPath, picture.data);
-            coverUrl = `/covers/${coverFileName}`;
+
+          try {
+            const metadata = await musicMetadata.parseFile(filePath);
+            if (metadata.common.title) title = metadata.common.title;
+            if (metadata.common.artist || metadata.common.albumartist) {
+              artistName = metadata.common.artist || metadata.common.albumartist || 'Unknown Artist';
+            }
+            if (metadata.common.album) albumTitle = metadata.common.album;
+            if (metadata.common.year) year = metadata.common.year;
+            if (metadata.format.duration) duration = metadata.format.duration;
+            if (metadata.format.container) format = metadata.format.container.toUpperCase();
+            if (metadata.format.sampleRate) sampleRate = metadata.format.sampleRate;
+            if (metadata.format.bitsPerSample) bitDepth = metadata.format.bitsPerSample;
+            if (metadata.format.bitrate) {
+              bitrate = `${Math.round(metadata.format.bitrate / 1000)} kbps`;
+            } else if (bitDepth && sampleRate) {
+              bitrate = `${bitDepth}-bit / ${sampleRate / 1000}kHz`;
+            }
+            if (metadata.common.track?.no) trackNumber = metadata.common.track.no;
+            if (metadata.common.disk?.no) discNumber = metadata.common.disk.no;
+            if (metadata.common.genre?.length) genre = metadata.common.genre.join(', ');
+
+            // Process Cover Art
+            if (metadata.common.picture && metadata.common.picture.length > 0) {
+              const picture = metadata.common.picture[0];
+              const coverFileName = `${sourceId}-${Buffer.from(relativePath).toString('hex').substring(0, 16)}.jpg`;
+              const coverPath = path.join(this.publicCoversDir, coverFileName);
+              fs.writeFileSync(coverPath, picture.data);
+              coverUrl = `/covers/${coverFileName}`;
+            }
+          } catch (metaErr) {
+            console.warn(`Không đọc được metadata tag của file ${filePath}, dùng thông tin fallback:`, metaErr);
           }
 
-          // Upsert Artist
-          const artist = await this.prisma.artist.upsert({
-            where: { name: artistName },
-            update: {},
-            create: { name: artistName },
-          });
+          // Safe Artist Lookup/Create
+          let artist = await this.prisma.artist.findFirst({ where: { name: artistName } });
+          if (!artist) {
+            artist = await this.prisma.artist.create({ data: { name: artistName } });
+          }
 
-          // Upsert Album
+          // Safe Album Lookup/Create
           let album = null;
           if (albumTitle) {
-            album = await this.prisma.album.upsert({
-              where: { title_artistId: { title: albumTitle, artistId: artist.id } },
-              update: { coverUrl: coverUrl || undefined },
-              create: { title: albumTitle, artistId: artist.id, year, coverUrl },
+            album = await this.prisma.album.findFirst({
+              where: { title: albumTitle, artistId: artist.id },
             });
+            if (!album) {
+              album = await this.prisma.album.create({
+                data: { title: albumTitle, artistId: artist.id, year, coverUrl },
+              });
+            } else if (coverUrl && !album.coverUrl) {
+              await this.prisma.album.update({
+                where: { id: album.id },
+                data: { coverUrl },
+              });
+            }
           }
 
           const existingSong = existingPathMap.get(relativePath);
@@ -128,7 +158,7 @@ export class ScannerService {
             filesAdded++;
           }
         } catch (err) {
-          console.error(`Error parsing file ${filePath}:`, err);
+          console.error(`Lỗi xử lý file ${filePath}:`, err);
           errorsCount++;
         }
       }
@@ -160,7 +190,7 @@ export class ScannerService {
         },
       });
 
-      return { success: true, filesAdded, filesUpdated, filesDeleted, errorsCount };
+      return { success: true, filesAdded, filesUpdated, filesDeleted, errorsCount, totalAudioFiles: audioFiles.length };
     } catch (err: any) {
       await this.prisma.scanLog.update({
         where: { id: scanLog.id },
@@ -176,19 +206,33 @@ export class ScannerService {
 
     if (!fs.existsSync(dirPath)) return results;
 
-    const list = fs.readdirSync(dirPath);
-    for (const file of list) {
-      const fullPath = path.join(dirPath, file);
-      const stat = fs.statSync(fullPath);
-      if (stat && stat.isDirectory()) {
-        results.push(...this.getAudioFilesRecursively(fullPath));
-      } else {
-        const ext = path.extname(file).toLowerCase();
-        if (validExts.has(ext)) {
-          results.push(fullPath);
+    try {
+      const list = fs.readdirSync(dirPath);
+      for (const file of list) {
+        // Skip hidden/system files
+        if (file.startsWith('.') || file.startsWith('$') || file === 'System Volume Information') {
+          continue;
+        }
+
+        const fullPath = path.join(dirPath, file);
+        try {
+          const stat = fs.statSync(fullPath);
+          if (stat && stat.isDirectory()) {
+            results.push(...this.getAudioFilesRecursively(fullPath));
+          } else {
+            const ext = path.extname(file).toLowerCase();
+            if (validExts.has(ext)) {
+              results.push(fullPath);
+            }
+          }
+        } catch {
+          // Ignore restricted files/folders
         }
       }
+    } catch {
+      // Ignore restricted directory listing errors
     }
+
     return results;
   }
 }
