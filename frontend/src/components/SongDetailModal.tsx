@@ -162,8 +162,8 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
             >
                 <div
                     className={`flex items-center justify-between p-4 sm:p-6 border-b border-white/10 bg-black/40 backdrop-blur-xl transition-all duration-300 ${isFullscreen
-                            ? 'rounded-2xl mx-2 sm:mx-6 mt-2 shadow-2xl -translate-y-full opacity-0 group-hover/topheader:translate-y-0 group-hover/topheader:opacity-100'
-                            : ''
+                        ? 'rounded-2xl mx-2 sm:mx-6 mt-2 shadow-2xl -translate-y-full opacity-0 group-hover/topheader:translate-y-0 group-hover/topheader:opacity-100'
+                        : ''
                         }`}
                 >
                     {/* Left: Digital Clock & Date */}
@@ -186,10 +186,9 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
 
                     {/* Center Title Badge */}
                     <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.08] border border-white/14 text-xs font-mono">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                        <span className="text-text-primary font-semibold">AudioVault Wall Monitor Engine</span>
-                        <span className="opacity-40">|</span>
-                        <span className="text-emerald-400 font-bold">LIVE STREAM</span>
+                        <Sparkles className="w-4 h-4 text-amber-300" />
+                        <span>{currentTrack.format} {currentTrack.bitDepth}/{currentTrack.sampleRate}</span>
+                        <span className="opacity-60 font-mono">· {currentTrack.bitrate} kbps</span>
                     </div>
 
                     {/* Right Studio Controls */}
@@ -461,14 +460,7 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                                 <span className={`w-1.5 bg-accent-primary rounded-full ${isPlaying ? 'animate-spectrum-5' : 'h-5 opacity-30'}`} />
                             </div>
 
-                            {/* Hi-Res Quality Specs Badge */}
-                            <div className="pt-1">
-                                <div className="bronze-badge px-4 py-1.5 rounded-full text-xs font-semibold inline-flex items-center gap-2 shadow-bronze-glow">
-                                    <Sparkles className="w-4 h-4 text-amber-300" />
-                                    <span>{currentTrack.format} {currentTrack.bitDepth}/{currentTrack.sampleRate}</span>
-                                    <span className="opacity-60 font-mono">· {currentTrack.bitrate} kbps</span>
-                                </div>
-                            </div>
+
                         </div>
 
                         {/* Progress & Main Control Buttons */}
