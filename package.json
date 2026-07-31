@@ -8,7 +8,9 @@
     "dev": "concurrently \"npm:dev:fe\" \"npm:dev:be\"",
     "build:fe": "npm run build --prefix frontend",
     "build:be": "npm run build --prefix backend",
-    "build": "npm run build:fe && npm run build:be"
+    "build": "npm run build:fe && npm run build:be",
+    "db:drop": "npm run db:drop --prefix backend",
+    "db:reset": "npm run db:reset --prefix backend"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
