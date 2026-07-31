@@ -30,6 +30,8 @@ export class SongsController {
       '.wav': 'audio/wav',
       '.mp3': 'audio/mpeg',
       '.m4a': 'audio/mp4',
+      '.mp4': 'audio/mp4',
+      '.alac': 'audio/mp4',
       '.ogg': 'audio/ogg',
     };
     const contentType = contentTypeMap[ext] || 'audio/mpeg';
@@ -42,21 +44,21 @@ export class SongsController {
 
       const fileStream = fs.createReadStream(filePath, { start, end });
 
-      reply.raw.writeHead(206, {
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': chunksize,
-        'Content-Type': contentType,
-      });
-
-      return fileStream.pipe(reply.raw);
+      return reply
+        .code(206)
+        .header('Content-Range', `bytes ${start}-${end}/${fileSize}`)
+        .header('Accept-Ranges', 'bytes')
+        .header('Content-Length', chunksize)
+        .header('Content-Type', contentType)
+        .send(fileStream);
     } else {
-      reply.raw.writeHead(200, {
-        'Content-Length': fileSize,
-        'Content-Type': contentType,
-      });
-
-      return fs.createReadStream(filePath).pipe(reply.raw);
+      const fileStream = fs.createReadStream(filePath);
+      return reply
+        .code(200)
+        .header('Accept-Ranges', 'bytes')
+        .header('Content-Length', fileSize)
+        .header('Content-Type', contentType)
+        .send(fileStream);
     }
   }
 
