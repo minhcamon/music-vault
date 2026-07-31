@@ -1,8 +1,19 @@
+import path from 'path';
 import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
 import cors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
 import { config } from './lib/config.js';
-import { songsController } from './container.js';
+import {
+  sourcesController,
+  songsController,
+  albumsController,
+  artistsController,
+  scannerService,
+} from './container.js';
+import { sourcesRoutes } from './modules/sources/sources.routes.js';
 import { songsRoutes } from './modules/songs/songs.routes.js';
+import { albumsRoutes } from './modules/albums/albums.routes.js';
+import { artistsRoutes } from './modules/artists/artists.routes.js';
 import { AppError } from './shared/errors/app-error.js';
 
 const fastify = Fastify({
@@ -14,13 +25,32 @@ async function buildServer() {
     origin: true,
   });
 
+  // Serve cover art images statically
+  await fastify.register(fastifyStatic, {
+    root: path.join(process.cwd(), 'public'),
+    prefix: '/',
+  });
+
   // Health check endpoint
   fastify.get('/api/health', async () => {
     return { status: 'ok', service: 'AudioVault Hi-Fi Music Server' };
   });
 
-  // Register domain routes with controllers injected from container
+  // Trigger Source Scan
+  fastify.post('/api/sources/:id/scan', async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    try {
+      const result = await scannerService.scanSource(req.params.id);
+      return reply.send({ success: true, data: result });
+    } catch (err: any) {
+      return reply.status(500).send({ success: false, error: err.message });
+    }
+  });
+
+  // Register domain routes
+  await fastify.register(sourcesRoutes, { controller: sourcesController });
   await fastify.register(songsRoutes, { controller: songsController });
+  await fastify.register(albumsRoutes, { controller: albumsController });
+  await fastify.register(artistsRoutes, { controller: artistsController });
 
   // Global Error Handler
   fastify.setErrorHandler((error: Error, request: FastifyRequest, reply: FastifyReply) => {

@@ -7,16 +7,131 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Song {
+model User {
+  id           String            @id @default(uuid())
+  username     String            @unique
+  email        String?           @unique
+  passwordHash String
+  role         String            @default("USER") // ADMIN, USER
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  playlists    Playlist[]
+  history      PlaybackHistory[]
+}
+
+model Source {
+  id            String    @id @default(uuid())
+  name          String
+  path          String    @unique
+  enabled       Boolean   @default(true)
+  lastScannedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  songs         Song[]
+  scanLogs      ScanLog[]
+}
+
+model Artist {
   id        String   @id @default(uuid())
-  title     String
-  artist    String
-  album     String
-  duration  Int
-  fileUrl   String
-  coverUrl  String?
-  format    String   @default("FLAC")
-  bitrate   String   @default("24-bit / 96kHz")
+  name      String   @unique
+  bio       String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  albums    Album[]
+  songs     Song[]
+}
+
+model Album {
+  id        String   @id @default(uuid())
+  title     String
+  coverUrl  String?
+  year      Int?
+  artistId  String?
+  artist    Artist?  @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  songs     Song[]
+
+  @@unique([title, artistId])
+}
+
+model Song {
+  id           String            @id @default(uuid())
+  title        String
+  duration     Float             @default(0) // seconds
+  fileUrl      String
+  relativePath String
+  coverUrl     String?
+  format       String            @default("FLAC")
+  bitrate      String?           @default("24-bit / 96kHz")
+  sampleRate   Int?
+  bitDepth     Int?
+  trackNumber  Int?
+  discNumber   Int?
+  genre        String?
+  missing      Boolean           @default(false)
+  sourceId     String
+  source       Source            @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  artistId     String?
+  artist       Artist?           @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  albumId      String?
+  album        Album?            @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  playlists    PlaylistSong[]
+  history      PlaybackHistory[]
+
+  @@unique([sourceId, relativePath])
+  @@index([artistId])
+  @@index([albumId])
+  @@index([sourceId])
+  @@index([title])
+}
+
+model Playlist {
+  id          String         @id @default(uuid())
+  name        String
+  description String?
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  songs       PlaylistSong[]
+}
+
+model PlaylistSong {
+  id         String   @id @default(uuid())
+  playlistId String
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  songId     String
+  song       Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  position   Int
+  addedAt    DateTime @default(now())
+
+  @@unique([playlistId, songId])
+  @@index([playlistId, position])
+}
+
+model PlaybackHistory {
+  id       String   @id @default(uuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  songId   String
+  song     Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+  playedAt DateTime @default(now())
+
+  @@index([userId, playedAt])
+}
+
+model ScanLog {
+  id           String    @id @default(uuid())
+  sourceId     String
+  source       Source    @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  status       String    @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, FAILED
+  filesAdded   Int       @default(0)
+  filesUpdated Int       @default(0)
+  filesDeleted Int       @default(0)
+  errors       String?
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
 }

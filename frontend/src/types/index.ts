@@ -30,6 +30,6 @@ export interface MusicSource {
   name: string;        // e.g. "Ổ D - HiRes Lossless"
   path: string;        // e.g. "D:\Music\Lossless"
   trackCount: number;
-  status: 'ready' | 'scanning' | 'disconnected';
+  status: 'ready' | 'scanning' | 'disconnected' | 'disabled';
   lastScan?: string;
 }
