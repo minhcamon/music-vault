@@ -1,11 +1,19 @@
 import React from 'react';
-import { ChevronDown, Play, Pause, SkipBack, SkipForward, Sparkles, Volume2, Disc } from 'lucide-react';
+import { ChevronDown, Play, Pause, SkipBack, SkipForward, Sparkles, Volume2, Disc, Repeat, Repeat1 } from 'lucide-react';
 import { Track } from '../types';
+import { RepeatMode } from '../hooks/useAudioPlayer';
 
 interface MobilePlayerSheetProps {
   currentTrack: Track;
   isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  repeatMode: RepeatMode;
   onTogglePlay: () => void;
+  onNextTrack: () => void;
+  onPrevTrack: () => void;
+  onToggleRepeat: () => void;
+  onSeek: (seconds: number) => void;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -13,11 +21,27 @@ interface MobilePlayerSheetProps {
 export const MobilePlayerSheet: React.FC<MobilePlayerSheetProps> = ({
   currentTrack,
   isPlaying,
+  currentTime,
+  duration,
+  repeatMode,
   onTogglePlay,
+  onNextTrack,
+  onPrevTrack,
+  onToggleRepeat,
+  onSeek,
   isOpen,
   onClose,
 }) => {
   if (!isOpen) return null;
+
+  const formatTime = (secs: number) => {
+    if (!secs || isNaN(secs)) return '00:00';
+    const mins = Math.floor(secs / 60);
+    const remainder = Math.floor(secs % 60);
+    return `${mins.toString().padStart(2, '0')}:${remainder.toString().padStart(2, '0')}`;
+  };
+
+  const totalDuration = duration || currentTrack.duration || 1;
 
   return (
     <div className="fixed inset-0 z-50 bg-[#15171C]/95 backdrop-blur-2xl p-6 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-bottom duration-300">
@@ -37,15 +61,11 @@ export const MobilePlayerSheet: React.FC<MobilePlayerSheetProps> = ({
 
       {/* Album Artwork Central Card */}
       <div className="my-8 flex-1 flex flex-col items-center justify-center">
-        <div className="w-64 h-64 sm:w-72 sm:h-72 rounded-2xl overflow-hidden glass-panel border-2 border-white/14 shadow-2xl p-2 relative">
-          <img
-            src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80"
-            alt={currentTrack.album}
-            className="w-full h-full object-cover rounded-xl"
-          />
+        <div className="w-64 h-64 sm:w-72 sm:h-72 rounded-2xl overflow-hidden glass-panel border-2 border-white/14 shadow-2xl p-4 flex items-center justify-center relative bg-black/40">
+          <Disc className="w-24 h-24 text-accent-primary animate-spin-slow" />
           {isPlaying && (
             <div className="absolute top-4 right-4 bg-accent-primary text-white p-2 rounded-full shadow-accent-glow">
-              <Disc className="w-5 h-5 animate-spin-slow" />
+              <span className="w-3 h-3 block rounded-full bg-white animate-ping" />
             </div>
           )}
         </div>
@@ -60,7 +80,6 @@ export const MobilePlayerSheet: React.FC<MobilePlayerSheetProps> = ({
         <div className="mt-4 bronze-badge px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 shadow-bronze-glow">
           <Sparkles className="w-4 h-4" />
           <span>{currentTrack.format} {currentTrack.bitDepth} / {currentTrack.sampleRate}</span>
-          <span className="opacity-70">· {currentTrack.bitrate} kbps</span>
         </div>
       </div>
 
@@ -69,20 +88,43 @@ export const MobilePlayerSheet: React.FC<MobilePlayerSheetProps> = ({
         {/* Progress Bar */}
         <div className="space-y-2 mono-tech text-xs text-text-secondary">
           <div className="h-2 bg-white/10 rounded-full overflow-hidden relative">
-            <div className="h-full bg-accent-primary w-1/3 rounded-full" />
+            <div 
+              className="h-full bg-accent-primary rounded-full"
+              style={{ width: `${Math.min(100, Math.max(0, (currentTime / totalDuration) * 100))}%` }}
+            />
+            <input
+              type="range"
+              min={0}
+              max={totalDuration}
+              value={currentTime}
+              onChange={(e) => onSeek(Number(e.target.value))}
+              className="absolute inset-0 w-full opacity-0 cursor-pointer"
+            />
           </div>
           <div className="flex justify-between">
-            <span>02:45</span>
-            <span>09:22</span>
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(totalDuration)}</span>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center justify-center gap-8">
-          <button className="text-text-secondary hover:text-text-primary p-2">
+        <div className="flex items-center justify-center gap-6">
+          {/* Repeat Button */}
+          <button
+            onClick={onToggleRepeat}
+            className={`p-2 rounded-xl transition-all ${
+              repeatMode !== 'off' ? 'bg-accent-primary text-white' : 'text-text-secondary'
+            }`}
+          >
+            {repeatMode === 'one' ? <Repeat1 className="w-6 h-6" /> : <Repeat className="w-6 h-6" />}
+          </button>
+
+          {/* Prev Track */}
+          <button onClick={onPrevTrack} className="text-text-secondary hover:text-text-primary p-2">
             <SkipBack className="w-7 h-7 fill-current" />
           </button>
 
+          {/* Play/Pause */}
           <button
             onClick={onTogglePlay}
             className="w-16 h-16 rounded-full bg-accent-primary text-white flex items-center justify-center shadow-accent-glow"
@@ -94,14 +136,10 @@ export const MobilePlayerSheet: React.FC<MobilePlayerSheetProps> = ({
             )}
           </button>
 
-          <button className="text-text-secondary hover:text-text-primary p-2">
+          {/* Next Track */}
+          <button onClick={onNextTrack} className="text-text-secondary hover:text-text-primary p-2">
             <SkipForward className="w-7 h-7 fill-current" />
           </button>
-        </div>
-
-        <div className="flex items-center gap-3 text-text-secondary justify-center pt-2">
-          <Volume2 className="w-4 h-4" />
-          <input type="range" className="w-48 accent-accent-primary" defaultValue={85} />
         </div>
       </div>
     </div>

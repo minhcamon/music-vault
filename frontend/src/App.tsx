@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { AlbumGrid } from './components/AlbumGrid';
@@ -7,21 +7,9 @@ import { ArtistGrid } from './components/ArtistGrid';
 import { PlayerDock } from './components/PlayerDock';
 import { MobilePlayerSheet } from './components/MobilePlayerSheet';
 import { SourceModal } from './components/SourceModal';
-import { Album, MusicSource, Track } from './types';
+import { Album, MusicSource } from './types';
 import { api, Song, Artist } from './services/api';
-
-const defaultPlayingTrack: Track = {
-  id: 'none',
-  title: 'Chưa chọn bài hát',
-  artist: 'AudioVault Hi-Fi',
-  album: 'Chưa có nhạc',
-  duration: 0,
-  format: 'FLAC',
-  sampleRate: '96kHz',
-  bitDepth: '24-bit',
-  bitrate: 3120,
-  trackNumber: 1,
-};
+import { useAudioPlayer } from './hooks/useAudioPlayer';
 
 export const App: React.FC = () => {
   const [sources, setSources] = useState<MusicSource[]>([]);
@@ -32,20 +20,27 @@ export const App: React.FC = () => {
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Audio Playback & HTML5 Audio Element Reference
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [activeTrack, setActiveTrack] = useState<Track>(defaultPlayingTrack);
-  const [currentTime, setCurrentTime] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(0);
-
   // Modals & Mobile Sheet States
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState<boolean>(false);
   const [isSourceModalOpen, setIsSourceModalOpen] = useState<boolean>(false);
-  const [isScanning, setIsScanning] = useState<boolean>(false);
 
-  // Load Sources and Songs from Fastify Backend
+  // Audio Player Custom Hook (Encapsulates queue, repeat mode, loop logic, track skip)
+  const {
+    isPlaying,
+    currentTime,
+    duration,
+    repeatMode,
+    currentTrack,
+    playSong,
+    togglePlay,
+    nextTrack,
+    prevTrack,
+    toggleRepeat,
+    seek,
+  } = useAudioPlayer();
+
+  // Load Sources, Songs, and Artists from Fastify Backend
   useEffect(() => {
     loadBackendData();
   }, []);
@@ -109,7 +104,6 @@ export const App: React.FC = () => {
 
   // Add Source Handler
   const handleAddSource = async (name: string, path: string) => {
-    setIsScanning(true);
     try {
       const newSource = await api.addSource(name, path);
       const scanResult = await api.scanSource(newSource.id);
@@ -118,53 +112,43 @@ export const App: React.FC = () => {
     } catch (err: any) {
       alert(`Lỗi thêm nguồn nhạc:\n${err.message || err}`);
     } finally {
-      setIsScanning(false);
       setIsSourceModalOpen(false);
     }
   };
 
-  // Play Single Song via HTTP Range Streaming URL
-  const handlePlaySong = (song: Song) => {
-    const streamUrl = api.getStreamUrl(song.id);
-
-    setActiveTrack({
-      id: song.id,
-      title: song.title,
-      artist: song.artist?.name || 'Unknown Artist',
-      album: song.album?.title || 'Single',
-      duration: song.duration || 240,
-      format: (song.format as any) || 'FLAC',
-      sampleRate: song.sampleRate ? `${song.sampleRate / 1000}kHz` : '96kHz',
-      bitDepth: song.bitDepth ? `${song.bitDepth}-bit` : '24-bit',
-      bitrate: 3120,
-      trackNumber: song.trackNumber || 1,
-    });
-
-    if (audioRef.current) {
-      audioRef.current.src = streamUrl;
-      audioRef.current.play().catch(() => {});
-    }
-    setIsPlaying(true);
-  };
-
-  // Play Album Handler
-  const handlePlayAlbum = (album: Album) => {
-    const matchingSong = songs.find((s) => s.album?.title === album.title || s.album?.id === album.id);
-    if (matchingSong) {
-      handlePlaySong(matchingSong);
-    }
-  };
-
-  const togglePlay = () => {
-    if (!activeTrack.id || activeTrack.id === 'none') return;
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
+  // Play Single Song via Audio Player Engine
+  const handlePlaySong = (song: Song, contextQueue?: Song[]) => {
+    // If contextQueue is provided (e.g. from an album or tracklist), use it; otherwise filter songs by current album
+    let queueToUse = contextQueue;
+    if (!queueToUse || queueToUse.length === 0) {
+      if (song.album?.title) {
+        queueToUse = songs
+          .filter((s) => s.album?.title === song.album?.title)
+          .sort((a, b) => {
+            if ((a.discNumber || 1) !== (b.discNumber || 1)) return (a.discNumber || 1) - (b.discNumber || 1);
+            if ((a.trackNumber || 0) !== (b.trackNumber || 0)) return (a.trackNumber || 0) - (b.trackNumber || 0);
+            return a.title.localeCompare(b.title);
+          });
       } else {
-        audioRef.current.play().catch(() => {});
+        queueToUse = songs;
       }
     }
-    setIsPlaying(!isPlaying);
+    playSong(song, queueToUse);
+  };
+
+  // Play Album Handler (Plays from Track 1 of the album in exact album order)
+  const handlePlayAlbum = (album: Album) => {
+    const albumSongs = songs
+      .filter((s) => s.album?.title === album.title || s.album?.id === album.id)
+      .sort((a, b) => {
+        if ((a.discNumber || 1) !== (b.discNumber || 1)) return (a.discNumber || 1) - (b.discNumber || 1);
+        if ((a.trackNumber || 0) !== (b.trackNumber || 0)) return (a.trackNumber || 0) - (b.trackNumber || 0);
+        return a.title.localeCompare(b.title);
+      });
+
+    if (albumSongs.length > 0) {
+      playSong(albumSongs[0], albumSongs);
+    }
   };
 
   // Filter Albums by Selected Source & Search Query
@@ -182,18 +166,6 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#15171C] text-[#EDEFF3] flex flex-col font-sans selection:bg-accent-primary selection:text-white">
-      {/* Hidden HTML5 Audio Element for HTTP Range Streaming */}
-      <audio
-        ref={audioRef}
-        onTimeUpdate={() => {
-          if (audioRef.current) setCurrentTime(audioRef.current.currentTime);
-        }}
-        onLoadedMetadata={() => {
-          if (audioRef.current) setDuration(audioRef.current.duration || 0);
-        }}
-        onEnded={() => setIsPlaying(false)}
-      />
-
       {/* Top Header Bar */}
       <Header
         searchQuery={searchQuery}
@@ -235,8 +207,8 @@ export const App: React.FC = () => {
           {activeTab === 'tracks' && (
             <TrackList
               songs={songs}
-              onPlaySong={handlePlaySong}
-              activeSongId={activeTrack.id}
+              onPlaySong={(song) => handlePlaySong(song, songs)}
+              activeSongId={currentTrack.id}
               isPlaying={isPlaying}
             />
           )}
@@ -262,17 +234,31 @@ export const App: React.FC = () => {
 
       {/* Signature Element: Floating Spectrum Glass Capsule Player Dock */}
       <PlayerDock
-        currentTrack={activeTrack}
+        currentTrack={currentTrack}
         isPlaying={isPlaying}
+        currentTime={currentTime}
+        duration={duration}
+        repeatMode={repeatMode}
         onTogglePlay={togglePlay}
+        onNextTrack={nextTrack}
+        onPrevTrack={prevTrack}
+        onToggleRepeat={toggleRepeat}
+        onSeek={seek}
         onOpenMobileSheet={() => setIsMobileSheetOpen(true)}
       />
 
       {/* Mobile Full-Screen Now Playing Sheet */}
       <MobilePlayerSheet
-        currentTrack={activeTrack}
+        currentTrack={currentTrack}
         isPlaying={isPlaying}
+        currentTime={currentTime}
+        duration={duration}
+        repeatMode={repeatMode}
         onTogglePlay={togglePlay}
+        onNextTrack={nextTrack}
+        onPrevTrack={prevTrack}
+        onToggleRepeat={toggleRepeat}
+        onSeek={seek}
         isOpen={isMobileSheetOpen}
         onClose={() => setIsMobileSheetOpen(false)}
       />
