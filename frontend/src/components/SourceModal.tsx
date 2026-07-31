@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, FolderPlus, HardDrive, AlertTriangle, CheckCircle2, RefreshCw, Trash2 } from 'lucide-react';
+import { X, FolderPlus, HardDrive, AlertTriangle, CheckCircle2, RefreshCw, Sparkles } from 'lucide-react';
 import { MusicSource } from '../types';
 
 interface SourceModalProps {
@@ -7,6 +7,7 @@ interface SourceModalProps {
   onClose: () => void;
   sources: MusicSource[];
   onAddSource: (name: string, path: string) => void;
+  onSeedDemo?: () => void;
 }
 
 export const SourceModal: React.FC<SourceModalProps> = ({
@@ -14,6 +15,7 @@ export const SourceModal: React.FC<SourceModalProps> = ({
   onClose,
   sources,
   onAddSource,
+  onSeedDemo,
 }) => {
   const [sourceName, setSourceName] = useState('');
   const [sourcePath, setSourcePath] = useState('');
@@ -126,20 +128,33 @@ export const SourceModal: React.FC<SourceModalProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs text-text-secondary hover:text-text-primary"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-xl bg-accent-primary hover:bg-accent-primaryHover text-white text-xs font-medium shadow-accent-glow"
-            >
-              Lưu & Quét Nhạc
-            </button>
+          <div className="flex items-center justify-between pt-2">
+            {onSeedDemo && (
+              <button
+                type="button"
+                onClick={onSeedDemo}
+                className="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-medium flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Tạo Thư Mục Nhạc Mẫu (Demo)</span>
+              </button>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-xl text-xs text-text-secondary hover:text-text-primary"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-xl bg-accent-primary hover:bg-accent-primaryHover text-white text-xs font-medium shadow-accent-glow"
+              >
+                Lưu & Quét Nhạc
+              </button>
+            </div>
           </div>
         </form>
       </div>

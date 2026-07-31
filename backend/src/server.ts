@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
 import cors from '@fastify/cors';
@@ -5,6 +6,7 @@ import fastifyStatic from '@fastify/static';
 import { config } from './lib/config.js';
 import {
   sourcesController,
+  sourcesRepository,
   songsController,
   albumsController,
   artistsController,
@@ -41,6 +43,44 @@ async function buildServer() {
     try {
       const result = await scannerService.scanSource(req.params.id);
       return reply.send({ success: true, data: result });
+    } catch (err: any) {
+      return reply.status(500).send({ success: false, error: err.message });
+    }
+  });
+
+  // Seed Demo Music Source
+  fastify.post('/api/sources/seed-demo', async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const demoDirPath = path.join(process.cwd(), 'demo-music');
+      if (!fs.existsSync(demoDirPath)) {
+        fs.mkdirSync(demoDirPath, { recursive: true });
+      }
+
+      // Create dummy audio files for demo if non existent
+      const demoFiles = [
+        'Miles_Davis_-_Kind_of_Blue.flac',
+        'Norah_Jones_-_Come_Away_With_Me.flac',
+        'Daft_Punk_-_Random_Access_Memories.wav',
+        'Pink_Floyd_-_The_Dark_Side_of_the_Moon.flac',
+      ];
+
+      for (const fileName of demoFiles) {
+        const filePath = path.join(demoDirPath, fileName);
+        if (!fs.existsSync(filePath)) {
+          fs.writeFileSync(filePath, Buffer.alloc(1024 * 100)); // 100KB dummy audio file
+        }
+      }
+
+      let source = await sourcesRepository.findByPath(demoDirPath);
+      if (!source) {
+        source = await sourcesRepository.create({
+          name: 'Ổ D - Sample Lossless Vault',
+          path: demoDirPath,
+        });
+      }
+
+      const scanResult = await scannerService.scanSource(source.id);
+      return reply.send({ success: true, data: { source, scanResult } });
     } catch (err: any) {
       return reply.status(500).send({ success: false, error: err.message });
     }

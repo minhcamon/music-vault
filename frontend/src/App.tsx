@@ -2,16 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { AlbumGrid } from './components/AlbumGrid';
+import { TrackList } from './components/TrackList';
+import { ArtistGrid } from './components/ArtistGrid';
 import { PlayerDock } from './components/PlayerDock';
 import { MobilePlayerSheet } from './components/MobilePlayerSheet';
 import { SourceModal } from './components/SourceModal';
 import { mockAlbums, initialSources, currentPlayingTrack } from './data/mockData';
 import { Album, MusicSource, Track } from './types';
-import { api, Song } from './services/api';
+import { api, Song, Artist } from './services/api';
 
 export const App: React.FC = () => {
   const [sources, setSources] = useState<MusicSource[]>(initialSources);
   const [albums, setAlbums] = useState<Album[]>(mockAlbums);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [artists, setArtists] = useState<Artist[]>([]);
   const [activeTab, setActiveTab] = useState<string>('albums');
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -49,9 +53,13 @@ export const App: React.FC = () => {
         );
       }
 
-      const backendSongs = await api.getSongs();
+      const backendSongs = await api.getSongs(searchQuery);
+      setSongs(backendSongs || []);
+
+      const backendArtists = await api.getArtists();
+      setArtists(backendArtists || []);
+
       if (backendSongs && backendSongs.length > 0) {
-        // Group backend songs into displayable album format
         const albumMap = new Map<string, Album>();
         backendSongs.forEach((song) => {
           const albumName = song.album?.title || 'Single / Unknown Album';
@@ -88,7 +96,6 @@ export const App: React.FC = () => {
   const handleAddSource = async (name: string, path: string) => {
     try {
       const newSource = await api.addSource(name, path);
-      // Trigger instant scan
       await api.scanSource(newSource.id);
       await loadBackendData();
     } catch (err: any) {
@@ -97,21 +104,33 @@ export const App: React.FC = () => {
     setIsSourceModalOpen(false);
   };
 
-  // Play Album / Track Handler using HTTP Range Streaming URL
-  const handlePlayAlbum = (album: Album) => {
-    const streamUrl = `http://localhost:3001/api/songs/${album.id}/stream`;
+  // Seed Demo Source Handler
+  const handleSeedDemo = async () => {
+    try {
+      await api.seedDemo();
+      await loadBackendData();
+      alert('Đã khởi tạo nguồn nhạc mẫu thành công!');
+    } catch (err: any) {
+      alert(err.message || 'Lỗi tạo nhạc mẫu');
+    }
+    setIsSourceModalOpen(false);
+  };
+
+  // Play Single Song via HTTP Range Streaming URL
+  const handlePlaySong = (song: Song) => {
+    const streamUrl = api.getStreamUrl(song.id);
 
     setActiveTrack({
-      id: `trk-${album.id}`,
-      title: `${album.title}`,
-      artist: album.artist,
-      album: album.title,
-      duration: 345,
-      format: album.format.includes('FLAC') ? 'FLAC' : 'WAV',
-      sampleRate: album.format.includes('192') ? '192kHz' : '96kHz',
-      bitDepth: '24-bit',
-      bitrate: album.format.includes('192') ? 5644 : 3120,
-      trackNumber: 1,
+      id: song.id,
+      title: song.title,
+      artist: song.artist?.name || 'Unknown Artist',
+      album: song.album?.title || 'Single',
+      duration: song.duration || 240,
+      format: (song.format as any) || 'FLAC',
+      sampleRate: song.sampleRate ? `${song.sampleRate / 1000}kHz` : '96kHz',
+      bitDepth: song.bitDepth ? `${song.bitDepth}-bit` : '24-bit',
+      bitrate: 3120,
+      trackNumber: song.trackNumber || 1,
     });
 
     if (audioRef.current) {
@@ -119,6 +138,28 @@ export const App: React.FC = () => {
       audioRef.current.play().catch(() => {});
     }
     setIsPlaying(true);
+  };
+
+  // Play Album Handler
+  const handlePlayAlbum = (album: Album) => {
+    const matchingSong = songs.find((s) => s.album?.title === album.title || s.album?.id === album.id);
+    if (matchingSong) {
+      handlePlaySong(matchingSong);
+    } else {
+      setActiveTrack({
+        id: `trk-${album.id}`,
+        title: `${album.title}`,
+        artist: album.artist,
+        album: album.title,
+        duration: 345,
+        format: 'FLAC',
+        sampleRate: '96kHz',
+        bitDepth: '24-bit',
+        bitrate: 3120,
+        trackNumber: 1,
+      });
+      setIsPlaying(true);
+    }
   };
 
   const togglePlay = () => {
@@ -162,7 +203,10 @@ export const App: React.FC = () => {
       {/* Top Header Bar */}
       <Header
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={(q) => {
+          setSearchQuery(q);
+          loadBackendData();
+        }}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
         onOpenSourceModal={() => setIsSourceModalOpen(true)}
       />
@@ -183,12 +227,40 @@ export const App: React.FC = () => {
 
         {/* Main Content Area */}
         <main className="flex-1 p-4 lg:p-8 pb-32 overflow-y-auto">
-          <AlbumGrid
-            albums={displayedAlbums}
-            onSelectAlbum={(alb) => handlePlayAlbum(alb)}
-            onPlayAlbum={handlePlayAlbum}
-            selectedSourceFilterName={selectedSource?.name}
-          />
+          {activeTab === 'albums' && (
+            <AlbumGrid
+              albums={displayedAlbums}
+              onSelectAlbum={(alb) => handlePlayAlbum(alb)}
+              onPlayAlbum={handlePlayAlbum}
+              selectedSourceFilterName={selectedSource?.name}
+            />
+          )}
+
+          {activeTab === 'tracks' && (
+            <TrackList
+              songs={songs}
+              onPlaySong={handlePlaySong}
+              activeSongId={activeTrack.id}
+              isPlaying={isPlaying}
+            />
+          )}
+
+          {activeTab === 'artists' && (
+            <ArtistGrid
+              artists={artists}
+              onSelectArtist={(art) => {
+                setSearchQuery(art.name);
+                setActiveTab('tracks');
+              }}
+            />
+          )}
+
+          {activeTab === 'playlists' && (
+            <div className="text-center py-16 glass-panel rounded-2xl p-8 border border-white/10">
+              <h3 className="text-base font-semibold text-text-primary">Danh Sách Phát (Playlists)</h3>
+              <p className="text-xs text-text-secondary mt-1">Tính năng tạo playlist cá nhân khả dụng cho người dùng đã đăng nhập.</p>
+            </div>
+          )}
         </main>
       </div>
 
@@ -215,6 +287,7 @@ export const App: React.FC = () => {
         onClose={() => setIsSourceModalOpen(false)}
         sources={sources}
         onAddSource={handleAddSource}
+        onSeedDemo={handleSeedDemo}
       />
     </div>
   );

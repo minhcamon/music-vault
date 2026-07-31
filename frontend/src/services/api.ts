@@ -78,6 +78,15 @@ export const api = {
     return json.data;
   },
 
+  async seedDemo() {
+    const res = await fetch(`${API_BASE_URL}/sources/seed-demo`, {
+      method: 'POST',
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Failed to seed demo music');
+    return json.data;
+  },
+
   async deleteSource(id: string) {
     const res = await fetch(`${API_BASE_URL}/sources/${id}`, {
       method: 'DELETE',
