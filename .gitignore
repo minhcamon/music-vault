@@ -32,3 +32,12 @@ dist-ssr/
 .env.production
 .env.development
 .env.local
+
+# Database
+*.db
+*.db-journal
+
+# Vite cache
+.vite/
+
+

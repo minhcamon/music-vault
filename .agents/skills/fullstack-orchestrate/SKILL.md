@@ -20,6 +20,19 @@ Skill này định nghĩa cách tổ chức thư mục và trách nhiệm từng
 3. **Public export qua `index.ts` (barrel file)**: Ẩn chi tiết nội bộ module, cấm import trực tiếp vào file nội bộ của module khác.
 4. **Single Responsibility (Mỗi file 1 trách nhiệm)**: Tách biệt rõ ràng giữa validation, business logic, DB query, và UI rendering.
 
+## Thư mục gốc Monorepo (Root Directory Layout)
+
+Dự án fullstack được tổ chức dưới dạng **Monorepo** phân chia rõ ràng giữa Frontend và Backend ở cấp thư mục gốc:
+
+```
+root/
+├── frontend/               # Mã nguồn Frontend (React + TypeScript + Vite)
+├── backend/                # Mã nguồn Backend (Fastify + TypeScript + Prisma)
+├── .agent/skills/          # Thư mục lưu trữ các Agent Skills
+├── SRS.md                  # Tài liệu Yêu cầu Phần mềm (Software Requirements Specification)
+└── package.json            # Cấu hình scripts chung (chạy song song FE & BE)
+```
+
 ## Backend Architecture: Fastify + TypeScript + Prisma
 
 ```
