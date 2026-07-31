@@ -9,6 +9,7 @@ export interface Track {
   bitDepth: string;  // e.g. "24-bit", "16-bit"
   bitrate: number;   // kbps, e.g. 5644
   trackNumber: number;
+  lyrics?: string | null;
 }
 
 export interface Album {

@@ -10,7 +10,6 @@ import {
   Maximize2,
   Repeat,
   Repeat1,
-  Shuffle,
   Disc
 } from 'lucide-react';
 import { Track } from '../types';
@@ -27,7 +26,7 @@ interface PlayerDockProps {
   onPrevTrack: () => void;
   onToggleRepeat: () => void;
   onSeek: (seconds: number) => void;
-  onOpenMobileSheet: () => void;
+  onOpenSongDetail: () => void;
 }
 
 export const PlayerDock: React.FC<PlayerDockProps> = ({
@@ -41,7 +40,7 @@ export const PlayerDock: React.FC<PlayerDockProps> = ({
   onPrevTrack,
   onToggleRepeat,
   onSeek,
-  onOpenMobileSheet,
+  onOpenSongDetail,
 }) => {
   const [volume, setVolume] = useState(85);
   const [isMuted, setIsMuted] = useState(false);
@@ -63,10 +62,11 @@ export const PlayerDock: React.FC<PlayerDockProps> = ({
         {/* Track Metadata & Cover Thumbnail */}
         <div className="flex items-center gap-3 w-full md:w-1/3 min-w-0 justify-between md:justify-start">
           <div 
-            onClick={onOpenMobileSheet} 
-            className="flex items-center gap-3 cursor-pointer min-w-0"
+            onClick={onOpenSongDetail} 
+            className="flex items-center gap-3 cursor-pointer min-w-0 group"
+            title="Mở giao diện chi tiết bài hát (Lyrics / Visualizer)"
           >
-            <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/14 shrink-0 relative flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/14 shrink-0 relative flex items-center justify-center group-hover:scale-105 transition-transform">
               <Disc className="w-6 h-6 text-accent-primary animate-spin-slow" />
               {isPlaying && (
                 <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
@@ -76,7 +76,7 @@ export const PlayerDock: React.FC<PlayerDockProps> = ({
             </div>
 
             <div className="min-w-0">
-              <h4 className="font-display font-bold text-sm text-text-primary truncate">
+              <h4 className="font-display font-bold text-sm text-text-primary truncate group-hover:text-accent-primary transition-colors">
                 {currentTrack.title}
               </h4>
               <p className="text-xs text-text-secondary truncate mt-0.5">
@@ -85,11 +85,11 @@ export const PlayerDock: React.FC<PlayerDockProps> = ({
             </div>
           </div>
 
-          {/* Mobile Fullscreen Sheet Trigger Icon */}
+          {/* Fullscreen Player Sheet Trigger Icon */}
           <button 
-            onClick={onOpenMobileSheet} 
-            className="md:hidden p-2 text-text-secondary hover:text-text-primary"
-            aria-label="Mở khung phát toàn màn hình"
+            onClick={onOpenSongDetail} 
+            className="p-2 text-text-secondary hover:text-text-primary hover:bg-white/10 rounded-lg transition-colors"
+            title="Mở màn hình bài hát (Current Song Player Detail)"
           >
             <Maximize2 className="w-4 h-4" />
           </button>

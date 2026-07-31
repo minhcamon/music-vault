@@ -69,6 +69,7 @@ model Song {
   trackNumber  Int?
   discNumber   Int?
   genre        String?
+  lyrics       String?
   missing      Boolean           @default(false)
   sourceId     String
   source       Source            @relation(fields: [sourceId], references: [id], onDelete: Cascade)

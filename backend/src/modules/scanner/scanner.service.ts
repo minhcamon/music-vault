@@ -56,6 +56,7 @@ export class ScannerService {
           let discNumber: number | null = null;
           let genre: string | null = null;
           let coverUrl: string | null = null;
+          let lyrics: string | null = null;
 
           try {
             const metadata = await musicMetadata.parseFile(filePath);
@@ -77,6 +78,10 @@ export class ScannerService {
             if (metadata.common.track?.no) trackNumber = metadata.common.track.no;
             if (metadata.common.disk?.no) discNumber = metadata.common.disk.no;
             if (metadata.common.genre?.length) genre = metadata.common.genre.join(', ');
+            if (metadata.common.lyrics && metadata.common.lyrics.length > 0) {
+              const rawLyrics = metadata.common.lyrics[0];
+              lyrics = typeof rawLyrics === 'string' ? rawLyrics : (rawLyrics as any)?.text || null;
+            }
 
             // Process Cover Art
             if (metadata.common.picture && metadata.common.picture.length > 0) {
@@ -128,6 +133,7 @@ export class ScannerService {
                 trackNumber,
                 discNumber,
                 genre,
+                lyrics: lyrics || existingSong.lyrics,
                 coverUrl: coverUrl || existingSong.coverUrl,
                 artistId: artist.id,
                 albumId: album ? album.id : null,
@@ -150,6 +156,7 @@ export class ScannerService {
                 trackNumber,
                 discNumber,
                 genre,
+                lyrics,
                 sourceId,
                 artistId: artist.id,
                 albumId: album ? album.id : null,

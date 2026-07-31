@@ -5,7 +5,7 @@ import { AlbumGrid } from './components/AlbumGrid';
 import { TrackList } from './components/TrackList';
 import { ArtistGrid } from './components/ArtistGrid';
 import { PlayerDock } from './components/PlayerDock';
-import { MobilePlayerSheet } from './components/MobilePlayerSheet';
+import { SongDetailModal } from './components/SongDetailModal';
 import { SourceModal } from './components/SourceModal';
 import { Album, MusicSource } from './types';
 import { api, Song, Artist } from './services/api';
@@ -20,12 +20,12 @@ export const App: React.FC = () => {
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Modals & Mobile Sheet States
+  // Modals States
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
-  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState<boolean>(false);
+  const [isSongDetailOpen, setIsSongDetailOpen] = useState<boolean>(false);
   const [isSourceModalOpen, setIsSourceModalOpen] = useState<boolean>(false);
 
-  // Audio Player Custom Hook (Encapsulates queue, repeat mode, loop logic, track skip)
+  // Audio Player Custom Hook
   const {
     isPlaying,
     currentTime,
@@ -118,7 +118,6 @@ export const App: React.FC = () => {
 
   // Play Single Song via Audio Player Engine
   const handlePlaySong = (song: Song, contextQueue?: Song[]) => {
-    // If contextQueue is provided (e.g. from an album or tracklist), use it; otherwise filter songs by current album
     let queueToUse = contextQueue;
     if (!queueToUse || queueToUse.length === 0) {
       if (song.album?.title) {
@@ -136,7 +135,7 @@ export const App: React.FC = () => {
     playSong(song, queueToUse);
   };
 
-  // Play Album Handler (Plays from Track 1 of the album in exact album order)
+  // Play Album Handler
   const handlePlayAlbum = (album: Album) => {
     const albumSongs = songs
       .filter((s) => s.album?.title === album.title || s.album?.id === album.id)
@@ -244,11 +243,13 @@ export const App: React.FC = () => {
         onPrevTrack={prevTrack}
         onToggleRepeat={toggleRepeat}
         onSeek={seek}
-        onOpenMobileSheet={() => setIsMobileSheetOpen(true)}
+        onOpenSongDetail={() => setIsSongDetailOpen(true)}
       />
 
-      {/* Mobile Full-Screen Now Playing Sheet */}
-      <MobilePlayerSheet
+      {/* Responsive Desktop & Mobile Fullscreen Current Song Detail View */}
+      <SongDetailModal
+        isOpen={isSongDetailOpen}
+        onClose={() => setIsSongDetailOpen(false)}
         currentTrack={currentTrack}
         isPlaying={isPlaying}
         currentTime={currentTime}
@@ -259,8 +260,6 @@ export const App: React.FC = () => {
         onPrevTrack={prevTrack}
         onToggleRepeat={toggleRepeat}
         onSeek={seek}
-        isOpen={isMobileSheetOpen}
-        onClose={() => setIsMobileSheetOpen(false)}
       />
 
       {/* Source Management Modal */}

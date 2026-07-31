@@ -25,6 +25,7 @@ export interface Song {
   trackNumber: number | null;
   discNumber: number | null;
   genre: string | null;
+  lyrics?: string | null;
   missing: boolean;
   artist?: { id: string; name: string };
   album?: { id: string; title: string; coverUrl: string | null };
