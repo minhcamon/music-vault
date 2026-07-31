@@ -22,7 +22,11 @@ export class SongsRepository implements ISongsRepository {
 
     return this.prisma.song.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { discNumber: 'asc' },
+        { trackNumber: 'asc' },
+        { title: 'asc' },
+      ],
       include: {
         artist: { select: { id: true, name: true } },
         album: { select: { id: true, title: true, coverUrl: true } },

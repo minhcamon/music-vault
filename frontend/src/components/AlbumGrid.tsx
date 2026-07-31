@@ -1,22 +1,29 @@
 import React, { useState } from 'react';
-import { Play, Heart, Disc, Filter, ArrowUpDown, Sparkles } from 'lucide-react';
+import { Play, Heart, Disc, ArrowUpDown, Sparkles } from 'lucide-react';
 import { Album } from '../types';
+import { Song } from '../services/api';
+import { AlbumDetailModal } from './AlbumDetailModal';
 
 interface AlbumGridProps {
   albums: Album[];
+  songs: Song[];
   onSelectAlbum: (album: Album) => void;
   onPlayAlbum: (album: Album) => void;
+  onPlaySong: (song: Song) => void;
   selectedSourceFilterName?: string | null;
 }
 
 export const AlbumGrid: React.FC<AlbumGridProps> = ({
   albums,
+  songs,
   onSelectAlbum,
   onPlayAlbum,
+  onPlaySong,
   selectedSourceFilterName,
 }) => {
   const [filterType, setFilterType] = useState<'all' | 'hires' | 'favorite'>('all');
   const [sortBy, setSortBy] = useState<'artist' | 'year' | 'title'>('artist');
+  const [selectedModalAlbum, setSelectedModalAlbum] = useState<Album | null>(null);
 
   // Filter & Sort Logic
   const filteredAlbums = albums.filter((alb) => {
@@ -28,6 +35,11 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
     if (sortBy === 'year') return b.year - a.year;
     return a.title.localeCompare(b.title);
   });
+
+  const handleCardClick = (album: Album) => {
+    setSelectedModalAlbum(album);
+    onSelectAlbum(album);
+  };
 
   return (
     <div className="space-y-6">
@@ -115,7 +127,7 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
           {filteredAlbums.map((album) => (
             <div
               key={album.id}
-              onClick={() => onSelectAlbum(album)}
+              onClick={() => handleCardClick(album)}
               className="group glass-panel glass-panel-hover rounded-2xl p-3.5 cursor-pointer relative flex flex-col justify-between"
             >
               {/* Album Art Container with Vinyl Fallback */}
@@ -179,6 +191,17 @@ export const AlbumGrid: React.FC<AlbumGridProps> = ({
           ))}
         </div>
       )}
+
+      {/* Album Tracklist Modal */}
+      <AlbumDetailModal
+        album={selectedModalAlbum}
+        songs={songs}
+        onClose={() => setSelectedModalAlbum(null)}
+        onPlaySong={(song) => {
+          onPlaySong(song);
+          setSelectedModalAlbum(null);
+        }}
+      />
     </div>
   );
 };

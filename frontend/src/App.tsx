@@ -224,8 +224,10 @@ export const App: React.FC = () => {
           {activeTab === 'albums' && (
             <AlbumGrid
               albums={displayedAlbums}
+              songs={songs}
               onSelectAlbum={(alb) => handlePlayAlbum(alb)}
               onPlayAlbum={handlePlayAlbum}
+              onPlaySong={handlePlaySong}
               selectedSourceFilterName={selectedSource?.name}
             />
           )}
