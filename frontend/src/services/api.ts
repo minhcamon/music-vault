@@ -50,7 +50,37 @@ export interface Artist {
   songs?: Song[];
 }
 
+export interface DirectoryItem {
+  name: string;
+  path: string;
+  isDirectory: boolean;
+  audioCount: number;
+}
+
+export interface BrowseResult {
+  currentPath: string;
+  parentPath: string | null;
+  items: DirectoryItem[];
+}
+
 export const api = {
+  // Directory Browser APIs
+  async getDrives(): Promise<string[]> {
+    const res = await fetch(`${API_BASE_URL}/browse/drives`);
+    const json = await res.json();
+    return json.data || [];
+  },
+
+  async getDirectoryContents(path?: string): Promise<BrowseResult> {
+    const url = path
+      ? `${API_BASE_URL}/browse?path=${encodeURIComponent(path)}`
+      : `${API_BASE_URL}/browse`;
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Failed to browse folder');
+    return json.data;
+  },
+
   // Sources
   async getSources(): Promise<Source[]> {
     const res = await fetch(`${API_BASE_URL}/sources`);
@@ -75,15 +105,6 @@ export const api = {
     });
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || 'Failed to scan source');
-    return json.data;
-  },
-
-  async seedDemo() {
-    const res = await fetch(`${API_BASE_URL}/sources/seed-demo`, {
-      method: 'POST',
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed to seed demo music');
     return json.data;
   },
 

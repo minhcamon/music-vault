@@ -16,6 +16,9 @@ import { AlbumsController } from './modules/albums/albums.controller.js';
 import { ArtistsService } from './modules/artists/artists.service.js';
 import { ArtistsController } from './modules/artists/artists.controller.js';
 
+import { BrowseService } from './modules/browse/browse.service.js';
+import { BrowseController } from './modules/browse/browse.controller.js';
+
 // Composition Root
 export const sourcesRepository = new SourcesRepository(prisma);
 export const sourcesService = new SourcesService(sourcesRepository);
@@ -32,3 +35,6 @@ export const albumsController = new AlbumsController(albumsService);
 
 export const artistsService = new ArtistsService(prisma);
 export const artistsController = new ArtistsController(artistsService);
+
+export const browseService = new BrowseService();
+export const browseController = new BrowseController(browseService);

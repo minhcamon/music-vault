@@ -7,13 +7,25 @@ import { ArtistGrid } from './components/ArtistGrid';
 import { PlayerDock } from './components/PlayerDock';
 import { MobilePlayerSheet } from './components/MobilePlayerSheet';
 import { SourceModal } from './components/SourceModal';
-import { mockAlbums, initialSources, currentPlayingTrack } from './data/mockData';
 import { Album, MusicSource, Track } from './types';
 import { api, Song, Artist } from './services/api';
 
+const defaultPlayingTrack: Track = {
+  id: 'none',
+  title: 'Chưa chọn bài hát',
+  artist: 'AudioVault Hi-Fi',
+  album: 'Chưa có nhạc',
+  duration: 0,
+  format: 'FLAC',
+  sampleRate: '96kHz',
+  bitDepth: '24-bit',
+  bitrate: 3120,
+  trackNumber: 1,
+};
+
 export const App: React.FC = () => {
-  const [sources, setSources] = useState<MusicSource[]>(initialSources);
-  const [albums, setAlbums] = useState<Album[]>(mockAlbums);
+  const [sources, setSources] = useState<MusicSource[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
   const [activeTab, setActiveTab] = useState<string>('albums');
@@ -23,9 +35,9 @@ export const App: React.FC = () => {
   // Audio Playback & HTML5 Audio Element Reference
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [activeTrack, setActiveTrack] = useState<Track>(currentPlayingTrack);
+  const [activeTrack, setActiveTrack] = useState<Track>(defaultPlayingTrack);
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(345);
+  const [duration, setDuration] = useState<number>(0);
 
   // Modals & Mobile Sheet States
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
@@ -40,7 +52,7 @@ export const App: React.FC = () => {
   const loadBackendData = async () => {
     try {
       const backendSources = await api.getSources();
-      if (backendSources && backendSources.length > 0) {
+      if (backendSources) {
         setSources(
           backendSources.map((s) => ({
             id: s.id,
@@ -72,7 +84,7 @@ export const App: React.FC = () => {
               artist: song.artist?.name || 'Unknown Artist',
               coverUrl: song.coverUrl
                 ? `http://localhost:3001${song.coverUrl}`
-                : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
+                : undefined,
               hasCover: !!song.coverUrl,
               year: 2026,
               format: `${song.format} ${song.bitDepth || 24}-bit/${(song.sampleRate || 96000) / 1000}kHz`,
@@ -86,9 +98,11 @@ export const App: React.FC = () => {
           }
         });
         setAlbums(Array.from(albumMap.values()));
+      } else {
+        setAlbums([]);
       }
     } catch (err) {
-      console.warn('Backend not available yet, using mock data:', err);
+      console.warn('Backend API connection error:', err);
     }
   };
 
@@ -100,18 +114,6 @@ export const App: React.FC = () => {
       await loadBackendData();
     } catch (err: any) {
       alert(err.message || 'Lỗi thêm nguồn nhạc');
-    }
-    setIsSourceModalOpen(false);
-  };
-
-  // Seed Demo Source Handler
-  const handleSeedDemo = async () => {
-    try {
-      await api.seedDemo();
-      await loadBackendData();
-      alert('Đã khởi tạo nguồn nhạc mẫu thành công!');
-    } catch (err: any) {
-      alert(err.message || 'Lỗi tạo nhạc mẫu');
     }
     setIsSourceModalOpen(false);
   };
@@ -145,24 +147,11 @@ export const App: React.FC = () => {
     const matchingSong = songs.find((s) => s.album?.title === album.title || s.album?.id === album.id);
     if (matchingSong) {
       handlePlaySong(matchingSong);
-    } else {
-      setActiveTrack({
-        id: `trk-${album.id}`,
-        title: `${album.title}`,
-        artist: album.artist,
-        album: album.title,
-        duration: 345,
-        format: 'FLAC',
-        sampleRate: '96kHz',
-        bitDepth: '24-bit',
-        bitrate: 3120,
-        trackNumber: 1,
-      });
-      setIsPlaying(true);
     }
   };
 
   const togglePlay = () => {
+    if (!activeTrack.id || activeTrack.id === 'none') return;
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
@@ -195,7 +184,7 @@ export const App: React.FC = () => {
           if (audioRef.current) setCurrentTime(audioRef.current.currentTime);
         }}
         onLoadedMetadata={() => {
-          if (audioRef.current) setDuration(audioRef.current.duration || 345);
+          if (audioRef.current) setDuration(audioRef.current.duration || 0);
         }}
         onEnded={() => setIsPlaying(false)}
       />
@@ -258,7 +247,7 @@ export const App: React.FC = () => {
           {activeTab === 'playlists' && (
             <div className="text-center py-16 glass-panel rounded-2xl p-8 border border-white/10">
               <h3 className="text-base font-semibold text-text-primary">Danh Sách Phát (Playlists)</h3>
-              <p className="text-xs text-text-secondary mt-1">Tính năng tạo playlist cá nhân khả dụng cho người dùng đã đăng nhập.</p>
+              <p className="text-xs text-text-secondary mt-1">Tính năng tạo playlist cá nhân khả dụng khi có bài hát trong thư viện.</p>
             </div>
           )}
         </main>
@@ -287,7 +276,6 @@ export const App: React.FC = () => {
         onClose={() => setIsSourceModalOpen(false)}
         sources={sources}
         onAddSource={handleAddSource}
-        onSeedDemo={handleSeedDemo}
       />
     </div>
   );

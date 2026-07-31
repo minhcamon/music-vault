@@ -10,12 +10,14 @@ import {
   songsController,
   albumsController,
   artistsController,
+  browseController,
   scannerService,
 } from './container.js';
 import { sourcesRoutes } from './modules/sources/sources.routes.js';
 import { songsRoutes } from './modules/songs/songs.routes.js';
 import { albumsRoutes } from './modules/albums/albums.routes.js';
 import { artistsRoutes } from './modules/artists/artists.routes.js';
+import { browseRoutes } from './modules/browse/browse.routes.js';
 import { AppError } from './shared/errors/app-error.js';
 
 const fastify = Fastify({
@@ -48,49 +50,12 @@ async function buildServer() {
     }
   });
 
-  // Seed Demo Music Source
-  fastify.post('/api/sources/seed-demo', async (req: FastifyRequest, reply: FastifyReply) => {
-    try {
-      const demoDirPath = path.join(process.cwd(), 'demo-music');
-      if (!fs.existsSync(demoDirPath)) {
-        fs.mkdirSync(demoDirPath, { recursive: true });
-      }
-
-      // Create dummy audio files for demo if non existent
-      const demoFiles = [
-        'Miles_Davis_-_Kind_of_Blue.flac',
-        'Norah_Jones_-_Come_Away_With_Me.flac',
-        'Daft_Punk_-_Random_Access_Memories.wav',
-        'Pink_Floyd_-_The_Dark_Side_of_the_Moon.flac',
-      ];
-
-      for (const fileName of demoFiles) {
-        const filePath = path.join(demoDirPath, fileName);
-        if (!fs.existsSync(filePath)) {
-          fs.writeFileSync(filePath, Buffer.alloc(1024 * 100)); // 100KB dummy audio file
-        }
-      }
-
-      let source = await sourcesRepository.findByPath(demoDirPath);
-      if (!source) {
-        source = await sourcesRepository.create({
-          name: 'Ổ D - Sample Lossless Vault',
-          path: demoDirPath,
-        });
-      }
-
-      const scanResult = await scannerService.scanSource(source.id);
-      return reply.send({ success: true, data: { source, scanResult } });
-    } catch (err: any) {
-      return reply.status(500).send({ success: false, error: err.message });
-    }
-  });
-
   // Register domain routes
   await fastify.register(sourcesRoutes, { controller: sourcesController });
   await fastify.register(songsRoutes, { controller: songsController });
   await fastify.register(albumsRoutes, { controller: albumsController });
   await fastify.register(artistsRoutes, { controller: artistsController });
+  await fastify.register(browseRoutes, { controller: browseController });
 
   // Global Error Handler
   fastify.setErrorHandler((error: Error, request: FastifyRequest, reply: FastifyReply) => {
