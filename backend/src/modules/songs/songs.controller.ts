@@ -36,12 +36,15 @@ export class SongsController {
     };
     const contentType = contentTypeMap[ext] || 'audio/flac';
 
-    // Set CORS & Range Expose headers for browser HTML5 Audio element
-    reply.raw.setHeader('Access-Control-Allow-Origin', '*');
-    reply.raw.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-    reply.raw.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Authorization');
-    reply.raw.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
-    reply.raw.setHeader('Accept-Ranges', 'bytes');
+    // Hijack Fastify reply first to take total control of raw Node HTTP socket
+    reply.hijack();
+    const res = reply.raw;
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Authorization');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+    res.setHeader('Accept-Ranges', 'bytes');
 
     if (range) {
       const parts = range.replace(/bytes=/, '').split('-');
@@ -49,30 +52,38 @@ export class SongsController {
       const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
 
       if (start >= fileSize || end >= fileSize) {
-        reply.raw.setHeader('Content-Range', `bytes */${fileSize}`);
-        reply.raw.writeHead(416);
-        return reply.raw.end();
+        res.setHeader('Content-Range', `bytes */${fileSize}`);
+        res.writeHead(416);
+        res.end();
+        return;
       }
 
       const chunksize = end - start + 1;
       const fileStream = fs.createReadStream(filePath, { start, end });
 
-      reply.raw.writeHead(206, {
+      res.writeHead(206, {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Content-Length': chunksize,
         'Content-Type': contentType,
       });
 
-      reply.hijack();
-      return fileStream.pipe(reply.raw);
+      fileStream.pipe(res);
+      fileStream.on('error', (err) => {
+        console.error('Audio stream pipe error:', err);
+        res.end();
+      });
     } else {
-      reply.raw.writeHead(200, {
+      res.writeHead(200, {
         'Content-Length': fileSize,
         'Content-Type': contentType,
       });
 
-      reply.hijack();
-      return fs.createReadStream(filePath).pipe(reply.raw);
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+      fileStream.on('error', (err) => {
+        console.error('Audio stream pipe error:', err);
+        res.end();
+      });
     }
   }
 
