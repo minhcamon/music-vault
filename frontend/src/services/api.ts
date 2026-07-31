@@ -1,4 +1,7 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+// Tự động dùng đúng host mà browser đang truy cập → hoạt động cả trên localhost lẫn LAN
+const API_BASE_URL = import.meta.env.VITE_API_URL
+  ?? `http://${window.location.hostname}:3001/api`;
+
 
 export interface Source {
   id: string;
@@ -149,5 +152,17 @@ export const api = {
     const res = await fetch(`${API_BASE_URL}/artists`);
     const json = await res.json();
     return json.data || [];
+  },
+
+  // System
+  async shutdownApp(): Promise<{ success: boolean; message: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/system/shutdown`, {
+        method: 'POST',
+      });
+      return await res.json();
+    } catch (err) {
+      return { success: true, message: 'Server shutdown initiated.' };
+    }
   },
 };

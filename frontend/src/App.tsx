@@ -8,6 +8,7 @@ import { PlayerDock } from './components/PlayerDock';
 import { SongDetailModal } from './components/SongDetailModal';
 import { LiveQueueDrawer } from './components/LiveQueueDrawer';
 import { SourceModal } from './components/SourceModal';
+import { ShutdownModal } from './components/ShutdownModal';
 import { Album, MusicSource } from './types';
 import { api, Song, Artist } from './services/api';
 import { useAudioPlayer } from './hooks/useAudioPlayer';
@@ -26,6 +27,9 @@ export const App: React.FC = () => {
   const [isSongDetailOpen, setIsSongDetailOpen] = useState<boolean>(false);
   const [isLiveQueueOpen, setIsLiveQueueOpen] = useState<boolean>(false);
   const [isSourceModalOpen, setIsSourceModalOpen] = useState<boolean>(false);
+  const [isShutdownModalOpen, setIsShutdownModalOpen] = useState<boolean>(false);
+  const [isShuttingDown, setIsShuttingDown] = useState<boolean>(false);
+  const [isShutdownComplete, setIsShutdownComplete] = useState<boolean>(false);
 
   // Audio Player Custom Hook
   const {
@@ -124,6 +128,19 @@ export const App: React.FC = () => {
     }
   };
 
+  // Shutdown Application Handler
+  const handleConfirmShutdown = async () => {
+    setIsShuttingDown(true);
+    try {
+      await api.shutdownApp();
+    } catch (err) {
+      console.error('Error during shutdown:', err);
+    } finally {
+      setIsShuttingDown(false);
+      setIsShutdownComplete(true);
+    }
+  };
+
   // Play Single Song via Audio Player Engine
   const handlePlaySong = (song: Song, contextQueue?: Song[]) => {
     let queueToUse = contextQueue;
@@ -182,10 +199,11 @@ export const App: React.FC = () => {
         }}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
         onOpenSourceModal={() => setIsSourceModalOpen(true)}
+        onOpenShutdownModal={() => setIsShutdownModalOpen(true)}
       />
 
       {/* Main Workspace Body */}
-      <div className="flex-1 flex w-full max-w-[1800px] mx-auto">
+      <div className="flex-1 flex w-full max-w-[1800px]">
         {/* Left Sidebar */}
         <Sidebar
           sources={sources}
@@ -196,6 +214,7 @@ export const App: React.FC = () => {
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           onOpenAddSourceModal={() => setIsSourceModalOpen(true)}
+          onOpenShutdownModal={() => setIsShutdownModalOpen(true)}
         />
 
         {/* Main Content Area */}
@@ -291,6 +310,15 @@ export const App: React.FC = () => {
         onClose={() => setIsSourceModalOpen(false)}
         sources={sources}
         onAddSource={handleAddSource}
+      />
+
+      {/* Application Shutdown Modal */}
+      <ShutdownModal
+        isOpen={isShutdownModalOpen}
+        onClose={() => setIsShutdownModalOpen(false)}
+        onConfirmShutdown={handleConfirmShutdown}
+        isShuttingDown={isShuttingDown}
+        isShutdownComplete={isShutdownComplete}
       />
     </div>
   );

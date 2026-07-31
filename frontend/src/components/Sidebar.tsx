@@ -10,7 +10,8 @@ import {
   AlertTriangle, 
   CheckCircle2, 
   RefreshCw,
-  X
+  X,
+  Power
 } from 'lucide-react';
 import { MusicSource } from '../types';
 
@@ -23,6 +24,7 @@ interface SidebarProps {
   isOpenMobile: boolean;
   onCloseMobile: () => void;
   onOpenAddSourceModal: () => void;
+  onOpenShutdownModal: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -34,6 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile,
   onCloseMobile,
   onOpenAddSourceModal,
+  onOpenShutdownModal,
 }) => {
   const navItems = [
     { id: 'albums', label: 'Album', icon: Disc },
@@ -167,11 +170,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* System Status Footer */}
-      <div className="pt-4 border-t border-white/10 text-[11px] mono-tech text-text-muted flex items-center justify-between">
-        <span>Prisma Engine</span>
+      <div className="pt-4 border-t border-white/10 text-[11px] mono-tech text-text-muted flex items-center justify-between gap-2">
         <span className="text-emerald-400 flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> LAN Ready
         </span>
+        <button
+          onClick={onOpenShutdownModal}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-[11px] font-sans font-medium transition-all"
+          title="Tắt máy chủ AudioVault"
+        >
+          <Power className="w-3 h-3 text-rose-400" />
+          <span>Tắt Server</span>
+        </button>
       </div>
     </div>
   );

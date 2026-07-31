@@ -40,6 +40,15 @@ async function buildServer() {
     return { status: 'ok', service: 'AudioVault Hi-Fi Music Server' };
   });
 
+  // System Shutdown endpoint
+  fastify.post('/api/system/shutdown', async (_req: FastifyRequest, reply: FastifyReply) => {
+    reply.send({ success: true, message: 'AudioVault server is shutting down...' });
+    setTimeout(() => {
+      console.log('🛑 AudioVault server stopped by user request via web interface.');
+      process.exit(0);
+    }, 500);
+  });
+
   // Trigger Source Scan
   fastify.post('/api/sources/:id/scan', async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {

@@ -17,7 +17,8 @@ import {
     Minimize2,
     ZoomIn,
     ZoomOut,
-    Radio
+    Radio,
+    Headphone
 } from 'lucide-react';
 import { Track } from '../types';
 import { RepeatMode } from '../hooks/useAudioPlayer';
@@ -143,10 +144,10 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
                     <img
                         src={currentTrack.coverUrl}
                         alt=""
-                        className={`w-full h-full object-cover blur-sm opacity-55 scale-125 brightness-50 contrast-125 transition-all duration-1000 ${isPlaying ? 'animate-pulse-slow' : 'grayscale-[20%]'
+                        className={`w-full h-full object-cover blur-md opacity-85 scale-110 brightness-[0.55] contrast-110 transition-all duration-1000 ${isPlaying ? 'animate-pulse-slow' : 'grayscale-[15%]'
                             }`}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D11]/90 via-[#0B0D11]/60 to-[#0B0D11]/40" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D11]/90 via-[#0B0D11]/50 to-[#0B0D11]/20" />
                 </div>
             ) : (
                 <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-br from-amber-950/40 via-[#0B0D11] to-purple-950/40" />
@@ -193,15 +194,6 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
 
                     {/* Right Studio Controls */}
                     <div className="flex items-center gap-2 sm:gap-3">
-                        {/* Live Queue Button */}
-                        <button
-                            onClick={onOpenLiveQueue}
-                            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/14 text-xs font-semibold text-text-primary flex items-center gap-1.5 transition-all hover:scale-105"
-                            title="Mở hàng chờ phát nhạc trực tiếp"
-                        >
-                            <ListMusic className="w-4 h-4 text-accent-primary" />
-                            <span className="hidden sm:inline">Hàng chờ</span>
-                        </button>
 
                         {/* Fullscreen Toggle */}
                         <button
@@ -273,10 +265,12 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
 
                             {/* Track Metadata */}
                             <div className="space-y-1.5 max-w-md">
-                                <h2 className="font-display font-bold text-2xl sm:text-3xl text-text-primary truncate tracking-tight">
+                                <h2
+                                    className="font-display font-bold text-2xl sm:text-3xl text-text-primary tracking-tight leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
+                                >
                                     {currentTrack.title}
                                 </h2>
-                                <p className="text-base text-text-secondary truncate">
+                                <p className="text-base text-text-secondary drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
                                     {currentTrack.artist} — <span className="italic opacity-80">{currentTrack.album}</span>
                                 </p>
 
@@ -444,10 +438,10 @@ export const SongDetailModal: React.FC<SongDetailModalProps> = ({
 
                         {/* Track Metadata & Spectrum Visualizer */}
                         <div className="space-y-2 w-full">
-                            <h2 className="font-display font-bold text-3xl sm:text-4xl text-text-primary tracking-tight truncate">
+                            <h2 className="font-display font-bold text-3xl sm:text-4xl text-text-primary tracking-tight leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]">
                                 {currentTrack.title}
                             </h2>
-                            <p className="text-lg text-text-secondary truncate">
+                            <p className="text-lg text-text-secondary drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]">
                                 {currentTrack.artist} — <span className="italic opacity-80">{currentTrack.album}</span>
                             </p>
 

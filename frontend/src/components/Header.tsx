@@ -1,11 +1,12 @@
 import React from 'react';
-import { Search, Disc, Loader2, Menu, SlidersHorizontal } from 'lucide-react';
+import { Search, Disc, Loader2, Menu, SlidersHorizontal, Power } from 'lucide-react';
 
 interface HeaderProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onToggleMobileSidebar: () => void;
   onOpenSourceModal: () => void;
+  onOpenShutdownModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -13,6 +14,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSearchChange,
   onToggleMobileSidebar,
   onOpenSourceModal,
+  onOpenShutdownModal,
 }) => {
   return (
     <header className="sticky top-0 z-30 w-full glass-panel border-b border-white/10 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4">
@@ -59,20 +61,12 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Real-time Scan Status & Action Pill */}
       <div className="flex items-center gap-3">
         <button
-          onClick={onOpenSourceModal}
-          className="hidden sm:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-accent-primary/40 hover:bg-white/[0.08] transition-all text-xs text-text-primary"
+          onClick={onOpenShutdownModal}
+          className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 hover:border-rose-500/50 text-rose-300 transition-all flex items-center gap-2 text-xs font-medium shadow-sm hover:shadow-rose-500/10"
+          title="Dừng ứng dụng AudioVault"
         >
-          <Loader2 className="w-3.5 h-3.5 text-accent-primary animate-spin" />
-          <span className="text-text-secondary">Quét Nguồn Nhạc:</span>
-          <span className="mono-tech text-accent-primary font-medium">NAS (98%)</span>
-        </button>
-
-        <button
-          onClick={onOpenSourceModal}
-          className="p-2 rounded-xl bg-white/[0.06] border border-white/14 hover:border-accent-primary/50 text-text-primary transition-all flex items-center gap-2 text-xs font-medium"
-        >
-          <SlidersHorizontal className="w-4 h-4 text-accent-primary" />
-          <span className="hidden md:inline">Nguồn Nhạc</span>
+          <Power className="w-4 h-4 text-rose-400" />
+          <span className="hidden sm:inline">Dừng App</span>
         </button>
       </div>
     </header>
