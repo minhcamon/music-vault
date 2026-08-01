@@ -91,7 +91,7 @@ export const PlayerDock: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Center: Playback Controls & High-Precision Seekbar */}
+      {/* 2. Center: Playback Controls & High-Precision Overlay Seekbar */}
       <div className="flex flex-col items-center gap-2 w-2/4 max-w-xl">
         <div className="flex items-center gap-6">
           {/* Repeat Mode Toggle Button */}
@@ -150,19 +150,22 @@ export const PlayerDock: React.FC = () => {
           <span className="text-xs font-mono font-bold text-vault-text w-12 text-right">
             {formatTime(currentTime)}
           </span>
-          <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden relative cursor-pointer">
+          
+          <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden relative group cursor-pointer">
+            <div
+              className="h-full bg-gradient-to-r from-vault-accent to-purple-400 rounded-full transition-all duration-75"
+              style={{ width: `${seekPercent}%` }}
+            />
             <input
               type="range"
               min={0}
               max={duration || 100}
               value={currentTime}
               onChange={(e) => seek(parseFloat(e.target.value))}
-              style={{
-                background: `linear-gradient(to right, #7C86F5 0%, #7C86F5 ${seekPercent}%, rgba(255, 255, 255, 0.15) ${seekPercent}%, rgba(255, 255, 255, 0.15) 100%)`,
-              }}
-              className="w-full h-full rounded-lg appearance-none cursor-pointer"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
           </div>
+
           <span className="text-xs font-mono font-medium text-vault-muted w-12">
             {formatTime(duration)}
           </span>
@@ -180,18 +183,22 @@ export const PlayerDock: React.FC = () => {
           >
             {volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={volume}
-            onChange={(e) => setVolume(parseFloat(e.target.value))}
-            style={{
-              background: `linear-gradient(to right, #7C86F5 0%, #7C86F5 ${volumePercent}%, rgba(255, 255, 255, 0.15) ${volumePercent}%, rgba(255, 255, 255, 0.15) 100%)`,
-            }}
-            className="w-20 h-1.5 rounded-lg appearance-none cursor-pointer"
-          />
+          
+          <div className="w-20 h-2 bg-white/10 rounded-full overflow-hidden relative group cursor-pointer">
+            <div
+              className="h-full bg-vault-accent rounded-full transition-all duration-75"
+              style={{ width: `${volumePercent}%` }}
+            />
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+          </div>
         </div>
 
         {/* Current Playlist Queue Drawer Toggle Button */}

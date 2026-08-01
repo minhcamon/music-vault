@@ -274,19 +274,20 @@ export const SongDetailModal: React.FC = () => {
 
           {/* Progress & Main Control Buttons */}
           <div className="w-full space-y-5 pt-1">
-            {/* Seekbar */}
+            {/* Overlay Seekbar */}
             <div className="space-y-2 mono-tech text-xs text-vault-muted">
-              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden relative cursor-pointer">
+              <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden relative cursor-pointer group">
+                <div
+                  className="h-full bg-gradient-to-r from-vault-accent to-purple-400 rounded-full transition-all duration-75"
+                  style={{ width: `${seekPercent}%` }}
+                />
                 <input
                   type="range"
                   min={0}
                   max={totalDuration}
                   value={currentTime}
                   onChange={(e) => seek(Number(e.target.value))}
-                  style={{
-                    background: `linear-gradient(to right, #7C86F5 0%, #7C86F5 ${seekPercent}%, rgba(255, 255, 255, 0.15) ${seekPercent}%, rgba(255, 255, 255, 0.15) 100%)`,
-                  }}
-                  className="w-full h-full rounded-lg appearance-none cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
               </div>
               <div className="flex justify-between text-xs font-mono">

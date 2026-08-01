@@ -27,7 +27,10 @@ export const AlbumDetailModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4"
+      onPointerDown={(e) => { if (e.target === e.currentTarget) setActiveModal('none'); }}
+    >
       <div className="glass-panel w-full max-w-3xl max-h-[85vh] rounded-2xl border border-vault-border p-6 flex flex-col space-y-6 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
         <div className="flex items-center justify-between border-b border-vault-border pb-4">
           <div className="flex items-center gap-3">

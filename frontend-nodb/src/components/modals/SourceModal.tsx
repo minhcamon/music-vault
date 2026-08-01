@@ -73,7 +73,10 @@ export const SourceModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4"
+      onPointerDown={(e) => { if (e.target === e.currentTarget) setActiveModal('none'); }}
+    >
       <div className="glass-panel w-full max-w-lg rounded-2xl border border-vault-border p-6 space-y-6 shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between border-b border-vault-border pb-4">
           <h3 className="font-bold text-vault-text text-xl">Thêm Nguồn Nhạc Mới</h3>
