@@ -8,7 +8,6 @@ import {
   SkipBack,
   SkipForward,
   Sparkles,
-  Disc,
   Clock,
   Maximize2,
   Minimize2,
@@ -21,6 +20,7 @@ import { Slider } from '../ui/slider';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { VinylRecord } from '../common/VinylRecord';
 
 export const SongDetailModal: React.FC = () => {
   const { activeModal, setActiveModal, selectedSong, isQueueDrawerOpen, setIsQueueDrawerOpen } = useUI();
@@ -130,18 +130,19 @@ export const SongDetailModal: React.FC = () => {
       <div className="fixed inset-0 z-50 bg-[#0B0D11] text-[#EDEFF3] flex flex-col justify-between overflow-hidden animate-in fade-in duration-300 selection:bg-vault-accent selection:text-white no-scrollbar">
         {/* Blurred Cover Art Background Backdrop */}
         {targetSong.coverBlobUrl ? (
-          <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+          <div key={`bg-wrapper-${targetSong.id}`} className="absolute inset-0 pointer-events-none z-0 overflow-hidden animate-album-swap" aria-hidden="true">
             <img
+              key={`bg-img-${targetSong.id}`}
               src={targetSong.coverBlobUrl}
               alt=""
-              className={`w-full h-full object-cover blur-xl opacity-40 scale-110 brightness-[0.45] contrast-125 transition-all duration-1000 ${
-                isCurrentPlaying ? 'animate-pulse' : 'grayscale-[20%]'
+              className={`w-full h-full object-cover blur-md opacity-85 scale-100 brightness-90 contrast-110 transition-all duration-1000 ${
+                isCurrentPlaying ? 'animate-pulse' : 'grayscale-[10%]'
               }`}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D11] via-[#0B0D11]/60 to-[#0B0D11]/30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D11] via-[#0B0D11]/40 to-black/20" />
           </div>
         ) : (
-          <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-br from-vault-accent/20 via-[#0B0D11] to-purple-950/40" />
+          <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-br from-vault-accent/30 via-[#0B0D11] to-purple-950/50" />
         )}
 
         {/* Top Studio Monitor Navigation Header */}
@@ -153,7 +154,7 @@ export const SongDetailModal: React.FC = () => {
           }
         >
           <div
-            className={`flex items-center justify-between p-4 sm:p-6 border-b border-white/10 bg-black/40 backdrop-blur-xl transition-all duration-300 ${
+            className={`flex items-center justify-between p-4 sm:p-6 border-b border-white/20 bg-black/25 backdrop-blur-2xl backdrop-saturate-100 shadow-2xl transition-all duration-300 ${
               isFullscreen
                 ? 'rounded-2xl mx-2 sm:mx-6 mt-2 shadow-2xl -translate-y-full opacity-0 group-hover/topheader:translate-y-0 group-hover/topheader:opacity-100'
                 : ''
@@ -224,31 +225,24 @@ export const SongDetailModal: React.FC = () => {
           <div className="w-full max-w-xl flex flex-col items-center justify-center space-y-6 text-center mx-auto my-auto">
             {/* Centered 3D Vinyl Stage */}
             <div className="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center group mx-auto">
-              {/* Spinning Vinyl Disc */}
+              {/* Soft Ambient Glow Pulse on Swap */}
               <div
-                className={`absolute w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-gradient-to-tr from-neutral-950 via-neutral-900 to-neutral-950 shadow-2xl border-4 border-neutral-800 flex items-center justify-center transition-all duration-700 ${
-                  isCurrentPlaying ? 'translate-x-12 sm:translate-x-14 animate-spin-slow' : 'translate-x-2'
-                }`}
-                style={{
-                  backgroundImage: 'radial-gradient(circle, #1a1a1a 30%, #111111 70%, #050505 100%)',
-                }}
-              >
-                {/* Concentric Vinyl Grooves */}
-                <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-full border border-neutral-700/40 flex items-center justify-center">
-                  <div className="w-36 h-36 sm:w-48 sm:h-48 rounded-full border border-neutral-700/30 flex items-center justify-center">
-                    {/* Center Gold Stamp */}
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-amber-300/40 flex items-center justify-center text-black font-mono font-bold text-[10px] text-center shadow-lg p-2">
-                      <div>
-                        <Disc className="w-5 h-5 mx-auto mb-0.5" />
-                        <span>HI-FI VINYL</span>
-                      </div>
-                    </div>
-                  </div>
+                key={`glow-${targetSong.id}`}
+                className="absolute inset-0 rounded-full bg-vault-accent/30 blur-3xl pointer-events-none animate-glow-pulse-swap"
+              />
+
+              {/* Vinyl Disc Stage (Permanently Extended Out + Pull Nudge Effect on Swap) */}
+              <div className="absolute transition-all duration-700 ease-out translate-x-14 sm:translate-x-20">
+                <div key={`vinyl-pull-${targetSong.id}`} className="animate-vinyl-pull">
+                  <VinylRecord isPlaying={isCurrentPlaying} size={280} />
                 </div>
               </div>
 
-              {/* Cover Art Box */}
-              <div className="relative z-10 w-56 h-56 sm:w-72 sm:h-72 rounded-3xl overflow-hidden glass-dock border-2 border-white/20 shadow-2xl p-2.5 bg-black/60">
+              {/* Cover Art Box with Album Swap Transition */}
+              <div
+                key={`cover-${targetSong.id}`}
+                className="relative z-10 w-56 h-56 sm:w-72 sm:h-72 rounded-3xl overflow-hidden glass-dock border-2 border-white/20 shadow-2xl p-2.5 bg-black/60 animate-album-swap"
+              >
                 <div className="w-full h-full rounded-2xl overflow-hidden relative">
                   {targetSong.coverBlobUrl ? (
                     <img
@@ -265,8 +259,8 @@ export const SongDetailModal: React.FC = () => {
               </div>
             </div>
 
-            {/* Track Metadata & Spectrum Visualizer */}
-            <div className="space-y-2 w-full">
+            {/* Track Metadata & Spectrum Visualizer with Text Swap Transition */}
+            <div key={`meta-${targetSong.id}`} className="space-y-2 w-full animate-text-swap">
               <h2 className="font-bold text-2xl sm:text-3xl text-vault-text tracking-tight leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] truncate">
                 {targetSong.title}
               </h2>

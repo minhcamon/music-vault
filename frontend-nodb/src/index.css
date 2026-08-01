@@ -10,13 +10,13 @@
     --card-foreground: 220 20% 94%;
     --popover: 224 14% 12%;
     --popover-foreground: 220 20% 94%;
-    --primary: 235 86% 72%; /* #7C86F5 */
+    --primary: 270 91% 65%; /* #A855F7 Royal Purple */
     --primary-foreground: 0 0% 100%;
     --secondary: 224 12% 18%;
     --secondary-foreground: 220 20% 94%;
     --muted: 224 10% 20%;
     --muted-foreground: 216 7% 57%; /* #8A9099 */
-    --accent: 235 86% 72%;
+    --accent: 270 91% 65%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -200,4 +200,71 @@ input[type="range"]::-moz-range-thumb {
 
 .animate-spin-slow {
   animation: spinSlow 12s linear infinite;
+}
+
+/* Vinyl Pull + Album Swap Transition System (Pure GPU 60FPS) */
+@keyframes albumCoverSwap {
+  0% {
+    transform: translate3d(-24px, 0, 0) scale3d(0.98, 0.98, 1);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    opacity: 1;
+  }
+}
+
+@keyframes vinylPullEffect {
+  0% {
+    transform: translate3d(-12px, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes glowPulseSwap {
+  0% {
+    transform: scale3d(0.95, 0.95, 1);
+    opacity: 0.15;
+  }
+  50% {
+    transform: scale3d(1.05, 1.05, 1);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale3d(1, 1, 1);
+    opacity: 0.15;
+  }
+}
+
+@keyframes textSwapEnter {
+  0% {
+    transform: translate3d(0, 8px, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.animate-album-swap {
+  animation: albumCoverSwap 550ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-vinyl-pull {
+  animation: vinylPullEffect 550ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.animate-glow-pulse-swap {
+  animation: glowPulseSwap 500ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
+.animate-text-swap {
+  animation: textSwapEnter 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }

@@ -51,7 +51,7 @@ export default {
         // Music Vault Custom Brand Palette
         vault: {
           bg: "#15171C",
-          accent: "#7C86F5",
+          accent: "#A855F7",
           bronze: "#D4A66A",
           text: "#EDEFF3",
           muted: "#8A9099",
