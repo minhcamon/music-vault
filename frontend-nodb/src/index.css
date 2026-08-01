@@ -32,6 +32,15 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
+
+  h1, h2, h3, h4, .font-heading, .font-display {
+    font-family: 'Space Grotesk', 'Outfit', 'Sora', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .font-logo {
+    font-family: 'Space Grotesk', 'Syne', sans-serif;
+  }
 }
 
 /* Custom Range Input Track & Thumb Styling */
@@ -136,12 +145,12 @@ input[type="range"]::-moz-range-thumb {
   background: rgba(212, 166, 106, 0.12);
   border: 1px solid rgba(212, 166, 106, 0.4);
   color: #D4A66A;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 
 .mono-tech {
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 

@@ -22,7 +22,7 @@ export const Sidebar: React.FC = () => {
                 <div className="flex items-center gap-3 px-3 py-2">
                     <img src="/logo.png" alt="Logo Music Vault" className="w-10 h-10" />
                     <div>
-                        <h1 className="font-bold text-vault-text text-base leading-none">Music Vault</h1>
+                        <h1 className="font-bold text-vault-text text-base leading-none font-logo">Music Vault</h1>
                         <span className="text-[10px] text-vault-muted font-mono tracking-widest uppercase">
                             Lossless Engine
                         </span>

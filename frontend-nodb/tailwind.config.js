@@ -71,6 +71,15 @@ export default {
       boxShadow: {
         glass: "0 12px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(124, 134, 245, 0.15)",
         dock: "0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Space Grotesk', 'Outfit', 'Sora', 'sans-serif'],
+        syne: ['Syne', 'sans-serif'],
+        outfit: ['Outfit', 'sans-serif'],
+        space: ['Space Grotesk', 'sans-serif'],
+        sora: ['Sora', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       }
     },
   },
