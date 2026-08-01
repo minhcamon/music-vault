@@ -89,7 +89,7 @@ export const LiveQueueDrawer: React.FC = () => {
     // ▸ will-change: transform → promotes this entire panel to its own GPU layer
     <div
       ref={panelRef}
-      className="fixed inset-y-0 right-0 w-80 sm:w-96 z-[60] flex flex-col shadow-2xl animate-in slide-in-from-right duration-300"
+      className="fixed inset-y-0 right-0 w-full sm:w-96 z-[60] flex flex-col shadow-2xl animate-in slide-in-from-right duration-300"
       style={{ willChange: 'transform' }}
     >
       {/* Blurred background as a separate non-scrolling layer */}

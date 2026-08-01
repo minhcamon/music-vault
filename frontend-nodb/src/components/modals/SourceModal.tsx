@@ -145,7 +145,7 @@ export const SourceModal: React.FC = () => {
       />
 
       <Dialog open={isOpen} onOpenChange={(open) => { if (!open) setActiveModal('none'); }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg w-[95vw] sm:w-full p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-xl">Thêm Nguồn Nhạc Mới</DialogTitle>
           </DialogHeader>

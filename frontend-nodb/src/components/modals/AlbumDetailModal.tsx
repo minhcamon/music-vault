@@ -37,41 +37,41 @@ export const AlbumDetailModal: React.FC = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) setActiveModal('none'); }}>
-      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
+      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col overflow-hidden w-[95vw] sm:w-full p-4 sm:p-6">
         <DialogHeader className="flex flex-row items-center justify-between border-b border-vault-border/50 pb-4">
           <div className="flex items-center gap-3">
-            <Disc className="w-6 h-6 text-vault-accent" />
-            <DialogTitle className="text-xl">Chi tiết Album</DialogTitle>
+            <Disc className="w-5 h-5 sm:w-6 sm:h-6 text-vault-accent" />
+            <DialogTitle className="text-lg sm:text-xl">Chi tiết Album</DialogTitle>
           </div>
           <Button
             variant="destructive"
             size="sm"
             onClick={handleDelete}
-            className="gap-1.5 text-xs mr-6"
+            className="gap-1.5 text-xs mr-4 sm:mr-6"
           >
-            <Trash2 className="w-4 h-4" /> Xóa Album
+            <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Xóa Album</span>
           </Button>
         </DialogHeader>
 
         {/* Album Header Info */}
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6 py-2">
           {selectedAlbum.coverBlobUrl ? (
             <img
               src={selectedAlbum.coverBlobUrl}
               alt={selectedAlbum.title}
-              className="w-28 h-28 rounded-2xl object-cover shadow-2xl border border-white/10"
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-2xl border border-white/10 shrink-0"
             />
           ) : (
-            <div className="w-28 h-28 rounded-2xl bg-vault-accent/20 border border-vault-accent/30 flex items-center justify-center text-vault-accent">
-              <Disc className="w-14 h-14" />
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-vault-accent/20 border border-vault-accent/30 flex items-center justify-center text-vault-accent shrink-0">
+              <Disc className="w-12 h-12 sm:w-14 sm:h-14" />
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <h2 className="text-2xl font-bold text-vault-text leading-tight">
+          <div className="space-y-1.5 flex-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-vault-text leading-tight">
               {selectedAlbum.title}
             </h2>
-            <p className="text-vault-muted font-medium text-sm">{selectedAlbum.artist}</p>
+            <p className="text-vault-muted font-medium text-xs sm:text-sm">{selectedAlbum.artist}</p>
             <p className="text-xs text-vault-accent font-mono">
               {albumSongs.length} bài hát {selectedAlbum.year ? `• Năm ${selectedAlbum.year}` : ''}
             </p>
@@ -88,14 +88,14 @@ export const AlbumDetailModal: React.FC = () => {
         </div>
 
         {/* Tracklist Table */}
-        <div className="flex-1 overflow-y-auto no-scrollbar rounded-xl border border-vault-border bg-white/5">
-          <table className="w-full text-left text-sm text-vault-text">
-            <thead className="bg-white/5 text-vault-muted uppercase text-xs tracking-wider border-b border-vault-border sticky top-0 backdrop-blur-md">
+        <div className="flex-1 overflow-y-auto no-scrollbar rounded-xl border border-vault-border bg-white/5 mt-2">
+          <table className="w-full text-left text-xs sm:text-sm text-vault-text">
+            <thead className="bg-white/5 text-vault-muted uppercase text-[10px] sm:text-xs tracking-wider border-b border-vault-border sticky top-0 backdrop-blur-md">
               <tr>
-                <th className="px-4 py-3 w-10">#</th>
-                <th className="px-4 py-3">Tên bài</th>
-                <th className="px-4 py-3 text-center">Chất lượng</th>
-                <th className="px-4 py-3 text-right">
+                <th className="px-3 sm:px-4 py-3 w-8 sm:w-10">#</th>
+                <th className="px-3 sm:px-4 py-3">Tên bài</th>
+                <th className="px-3 sm:px-4 py-3 text-center">Chất lượng</th>
+                <th className="px-3 sm:px-4 py-3 text-right">
                   <Clock className="w-3.5 h-3.5 inline" />
                 </th>
               </tr>
@@ -107,14 +107,14 @@ export const AlbumDetailModal: React.FC = () => {
                   onClick={() => playSong(song, albumSongs)}
                   className="hover:bg-white/10 cursor-pointer transition-colors"
                 >
-                  <td className="px-4 py-3 font-mono text-vault-muted text-xs">{idx + 1}</td>
-                  <td className="px-4 py-3 font-medium">{song.title}</td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-3 sm:px-4 py-3 font-mono text-vault-muted text-xs">{idx + 1}</td>
+                  <td className="px-3 sm:px-4 py-3 font-medium truncate max-w-[150px] sm:max-w-none">{song.title}</td>
+                  <td className="px-3 sm:px-4 py-3 text-center">
                     <Badge variant="bronze" className="text-[10px]">
                       {song.bitrate || 'FLAC'}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-xs text-vault-muted">
+                  <td className="px-3 sm:px-4 py-3 text-right font-mono text-xs text-vault-muted">
                     {Math.floor(song.duration / 60)}:
                     {Math.floor(song.duration % 60) < 10 ? '0' : ''}
                     {Math.floor(song.duration % 60)}

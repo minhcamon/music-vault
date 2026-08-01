@@ -23,6 +23,8 @@ interface UIContextType {
   setSelectedSong: (song: Song | null) => void;
   isQueueDrawerOpen: boolean;
   setIsQueueDrawerOpen: (open: boolean) => void;
+  isMobileSidebarOpen: boolean;
+  setIsMobileSidebarOpen: (open: boolean) => void;
   confirmModal: ConfirmModalState;
   openConfirmModal: (opts: Omit<ConfirmModalState, 'isOpen'>) => void;
   closeConfirmModal: () => void;
@@ -37,6 +39,7 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [isQueueDrawerOpen, setIsQueueDrawerOpen] = useState<boolean>(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState>({
     isOpen: false,
@@ -68,6 +71,8 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         setSelectedSong,
         isQueueDrawerOpen,
         setIsQueueDrawerOpen,
+        isMobileSidebarOpen,
+        setIsMobileSidebarOpen,
         confirmModal,
         openConfirmModal,
         closeConfirmModal,

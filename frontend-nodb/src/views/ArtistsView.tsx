@@ -12,17 +12,17 @@ export const ArtistsView: React.FC = () => {
   );
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-vault-text">Nghệ sĩ</h1>
-        <p className="text-sm text-vault-muted">{filtered.length} nghệ sĩ</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-vault-text">Nghệ sĩ</h1>
+        <p className="text-xs sm:text-sm text-vault-muted">{filtered.length} nghệ sĩ</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
         {filtered.map((artist) => (
           <div
             key={artist.id}
-            className="glass-panel glass-panel-hover rounded-2xl p-6 text-center space-y-3 cursor-pointer group relative"
+            className="glass-panel glass-panel-hover rounded-2xl p-4 sm:p-6 text-center space-y-2 sm:space-y-3 cursor-pointer group relative"
           >
             <button
               onClick={(e) => {
@@ -35,18 +35,18 @@ export const ArtistsView: React.FC = () => {
                   onConfirm: () => deleteArtist(artist.id, artist.name),
                 });
               }}
-              className="absolute top-4 right-4 p-2 rounded-xl bg-black/60 hover:bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-all z-10 shadow-lg"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-xl bg-black/60 hover:bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-all z-10 shadow-lg"
               title="Xóa Nghệ sĩ"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
-            <div className="w-24 h-24 mx-auto rounded-full bg-vault-accent/15 flex items-center justify-center text-vault-accent group-hover:scale-105 transition-transform">
-              <User className="w-10 h-10" />
+            <div className="w-18 h-18 sm:w-24 sm:h-24 mx-auto rounded-full bg-vault-accent/15 flex items-center justify-center text-vault-accent group-hover:scale-105 transition-transform">
+              <User className="w-8 h-8 sm:w-10 sm:h-10" />
             </div>
             <div>
-              <h3 className="font-semibold text-vault-text truncate">{artist.name}</h3>
-              <p className="text-xs text-vault-muted">
+              <h3 className="font-semibold text-xs sm:text-sm text-vault-text truncate">{artist.name}</h3>
+              <p className="text-[10px] sm:text-xs text-vault-muted">
                 {artist.albumCount} album • {artist.songCount} bài hát
               </p>
             </div>

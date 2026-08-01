@@ -52,18 +52,21 @@ export const PlayerDock: React.FC = () => {
     setActiveModal('song_detail');
   };
 
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
   return (
     <TooltipProvider>
+      {/* ─── DESKTOP PLAYER DOCK (md:flex) ─────────────────────────────────── */}
       <div
-        className="fixed bottom-3 left-6 right-6 h-24 glass-dock rounded-3xl px-6 py-3 flex items-center justify-between z-40"
+        className="hidden md:flex fixed bottom-3 left-6 right-6 h-24 glass-dock rounded-3xl px-6 py-3 items-center justify-between z-40"
         style={{ transform: 'translateZ(0)' }}
       >
-        {/* 1. Left: Current Track Meta (Clickable to open Fullscreen Studio Monitor) */}
+        {/* 1. Left: Current Track Meta */}
         <Tooltip>
           <TooltipTrigger asChild>
             <div
               onClick={handleOpenSongDetail}
-              className="flex items-center gap-4 w-1/4 min-w-[240px] cursor-pointer group hover:opacity-95 transition-all p-1.5 rounded-2xl hover:bg-white/5"
+              className="flex items-center gap-4 w-1/4 min-w-[220px] cursor-pointer group hover:opacity-95 transition-all p-1.5 rounded-2xl hover:bg-white/5"
             >
               <div className="relative shrink-0">
                 {currentSong.coverBlobUrl ? (
@@ -105,10 +108,9 @@ export const PlayerDock: React.FC = () => {
           </TooltipContent>
         </Tooltip>
 
-        {/* 2. Center: Playback Controls & High-Precision Shadcn Slider */}
+        {/* 2. Center: Playback Controls & High-Precision Slider */}
         <div className="flex flex-col items-center gap-2 w-2/4 max-w-xl">
           <div className="flex items-center gap-6">
-            {/* Repeat Mode Toggle Button */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -125,7 +127,6 @@ export const PlayerDock: React.FC = () => {
               </TooltipContent>
             </Tooltip>
 
-            {/* Prev Button */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -139,7 +140,6 @@ export const PlayerDock: React.FC = () => {
               <TooltipContent>Bài trước</TooltipContent>
             </Tooltip>
 
-            {/* Play/Pause Main Button */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -158,7 +158,6 @@ export const PlayerDock: React.FC = () => {
               <TooltipContent>{isPlaying ? 'Tạm dừng' : 'Phát nhạc'}</TooltipContent>
             </Tooltip>
 
-            {/* Next Button */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -178,7 +177,7 @@ export const PlayerDock: React.FC = () => {
             <span className="text-xs font-mono font-bold text-vault-text w-12 text-right">
               {formatTime(currentTime)}
             </span>
-            
+
             <div className="flex-1">
               <Slider
                 min={0}
@@ -195,9 +194,8 @@ export const PlayerDock: React.FC = () => {
           </div>
         </div>
 
-        {/* 3. Right: Volume & Current Playlist Queue Drawer Toggle */}
+        {/* 3. Right: Volume & Queue Drawer Toggle */}
         <div className="flex items-center justify-end gap-5 w-1/4 min-w-[200px]">
-          {/* Volume Slider */}
           <div className="flex items-center gap-2.5 bg-white/5 border border-white/10 rounded-2xl px-3 py-1.5">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -210,7 +208,7 @@ export const PlayerDock: React.FC = () => {
               </TooltipTrigger>
               <TooltipContent>{volume === 0 ? 'Bật âm thanh' : 'Tắt tiếng'}</TooltipContent>
             </Tooltip>
-            
+
             <div className="w-20">
               <Slider
                 min={0}
@@ -222,7 +220,6 @@ export const PlayerDock: React.FC = () => {
             </div>
           </div>
 
-          {/* Current Playlist Queue Drawer Toggle Button */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -240,6 +237,84 @@ export const PlayerDock: React.FC = () => {
             </TooltipTrigger>
             <TooltipContent side="top">Hàng đợi phát nhạc</TooltipContent>
           </Tooltip>
+        </div>
+      </div>
+
+      {/* ─── MOBILE MINI-PLAYER (md:hidden) ─────────────────────────────────── */}
+      <div
+        className="md:hidden fixed bottom-[68px] left-3 right-3 h-16 glass-dock rounded-2xl px-3 py-2 flex items-center justify-between z-40 shadow-2xl overflow-hidden"
+        style={{ transform: 'translateZ(0)' }}
+      >
+        {/* Top Progress Line Indicator */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-white/10">
+          <div
+            className="h-full bg-vault-accent transition-all duration-150"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
+        {/* Left: Cover & Track Metadata (Clickable to open Fullscreen Monitor) */}
+        <div
+          onClick={handleOpenSongDetail}
+          className="flex items-center gap-3 flex-1 overflow-hidden pr-2 cursor-pointer"
+        >
+          {currentSong.coverBlobUrl ? (
+            <img
+              src={currentSong.coverBlobUrl}
+              alt={currentSong.title}
+              className="w-11 h-11 rounded-xl object-cover border border-white/15 shrink-0"
+            />
+          ) : (
+            <div className="w-11 h-11 rounded-xl bg-vault-accent/20 border border-vault-accent/30 flex items-center justify-center text-vault-accent shrink-0">
+              <Music className="w-5 h-5" />
+            </div>
+          )}
+
+          <div className="overflow-hidden flex-1">
+            <h4 className="font-bold text-vault-text text-xs truncate leading-snug">
+              {currentSong.title}
+            </h4>
+            <p className="text-[11px] text-vault-muted truncate">
+              {currentSong.artist}
+            </p>
+          </div>
+        </div>
+
+        {/* Right: Quick Action Controls */}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Play/Pause Button */}
+          <Button
+            variant="default"
+            size="icon-sm"
+            onClick={togglePlayPause}
+            className="rounded-full shadow-md shadow-vault-accent/40"
+          >
+            {isPlaying ? (
+              <Pause className="w-4 h-4 fill-current" />
+            ) : (
+              <Play className="w-4 h-4 fill-current ml-0.5" />
+            )}
+          </Button>
+
+          {/* Next Button */}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={playNext}
+            className="text-vault-muted hover:text-vault-text"
+          >
+            <SkipForward className="w-4 h-4 fill-current" />
+          </Button>
+
+          {/* Queue Drawer Button */}
+          <Button
+            variant={isQueueDrawerOpen ? 'default' : 'ghost'}
+            size="icon-sm"
+            onClick={() => setIsQueueDrawerOpen(!isQueueDrawerOpen)}
+            className="rounded-xl relative"
+          >
+            <ListMusic className="w-4 h-4" />
+          </Button>
         </div>
       </div>
     </TooltipProvider>

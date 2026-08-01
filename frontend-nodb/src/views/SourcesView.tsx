@@ -11,42 +11,42 @@ export const SourcesView: React.FC = () => {
   const getSourceIcon = (type: SourceType) => {
     switch (type) {
       case 'LOCAL':
-        return <Folder className="w-6 h-6 text-vault-accent" />;
+        return <Folder className="w-5 h-5 sm:w-6 sm:h-6 text-vault-accent" />;
       case 'GDRIVE':
-        return <Cloud className="w-6 h-6 text-blue-400" />;
+        return <Cloud className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />;
       case 'S3':
-        return <Database className="w-6 h-6 text-amber-400" />;
+        return <Database className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />;
       default:
-        return <Folder className="w-6 h-6 text-vault-accent" />;
+        return <Folder className="w-5 h-5 sm:w-6 sm:h-6 text-vault-accent" />;
     }
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-vault-text">Quản lý Nguồn Nhạc (Sources)</h1>
-          <p className="text-sm text-vault-muted">
+          <h1 className="text-xl sm:text-2xl font-bold text-vault-text">Quản lý Nguồn Nhạc (Sources)</h1>
+          <p className="text-xs sm:text-sm text-vault-muted">
             Thêm & quét nhạc từ Thư mục máy tính hoặc Cloud (Google Drive, AWS S3)
           </p>
         </div>
         <button
           onClick={() => setActiveModal('add_source')}
-          className="px-4 py-2.5 rounded-xl bg-vault-accent text-white font-medium flex items-center gap-2 hover:bg-vault-accent/90 transition-colors shadow-lg"
+          className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-vault-accent text-white text-xs sm:text-sm font-medium flex items-center gap-2 hover:bg-vault-accent/90 transition-colors shadow-lg shrink-0"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
           Thêm nguồn nhạc
         </button>
       </div>
 
       {isScanning && (
-        <div className="glass-panel rounded-2xl p-6 border-vault-accent/40 space-y-3 animate-pulse">
-          <div className="flex items-center justify-between text-sm">
+        <div className="glass-panel rounded-2xl p-4 sm:p-6 border-vault-accent/40 space-y-3 animate-pulse">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs sm:text-sm">
             <span className="font-semibold text-vault-accent flex items-center gap-2">
               <RefreshCw className="w-4 h-4 animate-spin" />
               Đang quét nhạc... ({scanProgress.processed}/{scanProgress.total})
             </span>
-            <span className="text-vault-muted font-mono">{scanProgress.currentFile}</span>
+            <span className="text-vault-muted font-mono text-xs truncate max-w-[250px] sm:max-w-xs">{scanProgress.currentFile}</span>
           </div>
           <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
             <div
@@ -63,15 +63,15 @@ export const SourcesView: React.FC = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {sources.map((source) => (
-          <div key={source.id} className="glass-panel rounded-2xl p-6 space-y-4 relative">
+          <div key={source.id} className="glass-panel rounded-2xl p-4 sm:p-6 space-y-4 relative">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-3 rounded-xl bg-white/5">{getSourceIcon(source.type)}</div>
+                <div className="p-2.5 sm:p-3 rounded-xl bg-white/5">{getSourceIcon(source.type)}</div>
                 <div>
-                  <h3 className="font-bold text-vault-text">{source.name}</h3>
-                  <span className="text-xs text-vault-muted font-mono uppercase">
+                  <h3 className="font-bold text-sm sm:text-base text-vault-text">{source.name}</h3>
+                  <span className="text-[10px] sm:text-xs text-vault-muted font-mono uppercase">
                     {source.type}
                   </span>
                 </div>

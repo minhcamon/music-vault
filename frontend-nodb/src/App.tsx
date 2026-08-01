@@ -3,6 +3,7 @@ import { LibraryProvider } from './contexts/LibraryContext';
 import { AudioProvider } from './contexts/AudioContext';
 import { Sidebar } from './components/common/Sidebar';
 import { Header } from './components/common/Header';
+import { MobileNav } from './components/common/MobileNav';
 import { PlayerDock } from './components/player/PlayerDock';
 import { LiveQueueDrawer } from './components/player/LiveQueueDrawer';
 import { ViewRouter } from './views/ViewRouter';
@@ -20,7 +21,7 @@ export default function App() {
             <div className="absolute top-[35%] right-[25%] w-[400px] h-[400px] rounded-full bg-pink-600/10 blur-[100px] pointer-events-none transform-gpu z-0" />
 
             <Sidebar />
-            <div className="flex-1 flex flex-col overflow-hidden pb-28 relative z-10">
+            <div className="flex-1 flex flex-col overflow-hidden pb-36 md:pb-28 relative z-10">
               <Header />
               <main
                 className="flex-1 overflow-y-auto no-scrollbar relative z-10"
@@ -30,6 +31,7 @@ export default function App() {
               </main>
             </div>
             <PlayerDock />
+            <MobileNav />
             <LiveQueueDrawer />
             <ModalManager />
           </div>
