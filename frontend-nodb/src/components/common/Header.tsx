@@ -2,10 +2,17 @@ import React from 'react';
 import { useUI } from '../../contexts/UIContext';
 import { useLibrary } from '../../contexts/LibraryContext';
 import { Search, FolderPlus, Sparkles, RefreshCw } from 'lucide-react';
+import { Progress } from '../ui/progress';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
 
 export const Header: React.FC = () => {
   const { searchQuery, setSearchQuery, setActiveModal } = useUI();
   const { isScanning, scanProgress } = useLibrary();
+
+  const scanPercent = scanProgress.total > 0
+    ? Math.min(100, Math.round((scanProgress.processed / scanProgress.total) * 100))
+    : 0;
 
   return (
     <header className="h-16 border-b border-vault-border bg-vault-bg/60 backdrop-blur-xl px-6 flex items-center justify-between sticky top-0 z-30">
@@ -24,32 +31,34 @@ export const Header: React.FC = () => {
       {/* Global Scan Indicator & Actions */}
       <div className="flex items-center gap-4">
         {isScanning ? (
-          <div className="px-4 py-1.5 rounded-xl bg-vault-accent/20 border border-vault-accent/40 flex items-center gap-3 text-xs text-vault-accent animate-pulse">
-            <RefreshCw className="w-4 h-4 animate-spin text-vault-accent" />
-            <div className="space-y-0.5">
-              <div className="font-semibold flex items-center gap-2">
+          <div className="px-4 py-2 rounded-xl bg-vault-accent/15 border border-vault-accent/30 flex items-center gap-3 text-xs text-vault-accent min-w-[240px]">
+            <RefreshCw className="w-4 h-4 animate-spin text-vault-accent shrink-0" />
+            <div className="space-y-1 flex-1">
+              <div className="font-semibold flex items-center justify-between gap-2">
                 <span>Đang quét nhạc...</span>
-                <span className="font-mono">{scanProgress.processed}/{scanProgress.total}</span>
+                <span className="font-mono text-[11px]">{scanProgress.processed}/{scanProgress.total}</span>
               </div>
-              <div className="text-[10px] text-vault-muted max-w-[200px] truncate font-mono">
+              <Progress value={scanPercent} className="h-1.5" />
+              <div className="text-[10px] text-vault-muted max-w-[180px] truncate font-mono">
                 {scanProgress.currentFile}
               </div>
             </div>
           </div>
         ) : (
-          <div className="px-3 py-1 rounded-full bronze-badge text-xs flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-vault-bronze" />
+          <Badge variant="bronze" className="px-3 py-1 text-xs flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>Client-Side No-DB Engine</span>
-          </div>
+          </Badge>
         )}
 
-        <button
+        <Button
+          variant="glass"
           onClick={() => setActiveModal('add_source')}
-          className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-vault-text text-sm font-medium transition-colors flex items-center gap-2"
+          className="gap-2"
         >
           <FolderPlus className="w-4 h-4 text-vault-accent" />
           Thêm Nguồn Nhạc
-        </button>
+        </Button>
       </div>
     </header>
   );

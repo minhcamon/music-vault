@@ -2,14 +2,23 @@ import React from 'react';
 import { useUI } from '../../contexts/UIContext';
 import { useLibrary } from '../../contexts/LibraryContext';
 import { useAudio } from '../../contexts/AudioContext';
-import { X, Play, Disc, Clock, Trash2 } from 'lucide-react';
+import { Play, Disc, Clock, Trash2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
 
 export const AlbumDetailModal: React.FC = () => {
   const { activeModal, setActiveModal, selectedAlbum, openConfirmModal } = useUI();
   const { songs, deleteAlbum } = useLibrary();
   const { playSong } = useAudio();
 
-  if (activeModal !== 'album_detail' || !selectedAlbum) return null;
+  const isOpen = activeModal === 'album_detail' && !!selectedAlbum;
+  if (!selectedAlbum) return null;
 
   const albumSongs = songs.filter((s) => s.album === selectedAlbum.title);
 
@@ -27,32 +36,22 @@ export const AlbumDetailModal: React.FC = () => {
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4"
-      onPointerDown={(e) => { if (e.target === e.currentTarget) setActiveModal('none'); }}
-    >
-      <div className="glass-panel w-full max-w-3xl max-h-[85vh] rounded-2xl border border-vault-border p-6 flex flex-col space-y-6 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
-        <div className="flex items-center justify-between border-b border-vault-border pb-4">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) setActiveModal('none'); }}>
+      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex flex-row items-center justify-between border-b border-vault-border/50 pb-4">
           <div className="flex items-center gap-3">
             <Disc className="w-6 h-6 text-vault-accent" />
-            <h3 className="font-bold text-vault-text text-xl">Chi tiết Album</h3>
+            <DialogTitle className="text-xl">Chi tiết Album</DialogTitle>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleDelete}
-              className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors flex items-center gap-1.5 text-xs font-semibold"
-              title="Xóa Album này"
-            >
-              <Trash2 className="w-4 h-4" /> Xóa Album
-            </button>
-            <button
-              onClick={() => setActiveModal('none')}
-              className="p-1 rounded-lg hover:bg-white/10 text-vault-muted hover:text-vault-text"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleDelete}
+            className="gap-1.5 text-xs mr-6"
+          >
+            <Trash2 className="w-4 h-4" /> Xóa Album
+          </Button>
+        </DialogHeader>
 
         {/* Album Header Info */}
         <div className="flex items-center gap-6">
@@ -76,14 +75,15 @@ export const AlbumDetailModal: React.FC = () => {
             <p className="text-xs text-vault-accent font-mono">
               {albumSongs.length} bài hát {selectedAlbum.year ? `• Năm ${selectedAlbum.year}` : ''}
             </p>
-            <button
+            <Button
+              size="sm"
               onClick={() => {
                 if (albumSongs.length > 0) playSong(albumSongs[0], albumSongs);
               }}
-              className="mt-2 px-4 py-2 rounded-xl bg-vault-accent text-white font-medium text-xs flex items-center gap-2 shadow-lg shadow-vault-accent/30 hover:bg-vault-accent/90"
+              className="mt-2 gap-2 shadow-lg shadow-vault-accent/30"
             >
               <Play className="w-4 h-4 fill-current" /> Phát toàn bộ album
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -110,9 +110,9 @@ export const AlbumDetailModal: React.FC = () => {
                   <td className="px-4 py-3 font-mono text-vault-muted text-xs">{idx + 1}</td>
                   <td className="px-4 py-3 font-medium">{song.title}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className="bronze-badge px-2 py-0.5 rounded text-[10px]">
+                    <Badge variant="bronze" className="text-[10px]">
                       {song.bitrate || 'FLAC'}
-                    </span>
+                    </Badge>
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs text-vault-muted">
                     {Math.floor(song.duration / 60)}:
@@ -124,7 +124,7 @@ export const AlbumDetailModal: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

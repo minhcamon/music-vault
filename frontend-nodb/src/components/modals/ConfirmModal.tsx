@@ -1,11 +1,18 @@
 import React from 'react';
 import { useUI } from '../../contexts/UIContext';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '../ui/dialog';
+import { Button } from '../ui/button';
 
 export const ConfirmModal: React.FC = () => {
   const { confirmModal, closeConfirmModal } = useUI();
-
-  if (!confirmModal.isOpen) return null;
 
   const isDanger = confirmModal.confirmVariant !== 'primary';
 
@@ -20,12 +27,9 @@ export const ConfirmModal: React.FC = () => {
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/75 backdrop-blur-md z-[70] flex items-center justify-center p-4"
-      onPointerDown={(e) => { if (e.target === e.currentTarget) closeConfirmModal(); }}
-    >
-      <div className="glass-panel w-full max-w-md rounded-2xl border border-vault-border p-6 space-y-5 shadow-2xl animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between">
+    <Dialog open={confirmModal.isOpen} onOpenChange={(open) => { if (!open) closeConfirmModal(); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader className="border-none pb-0">
           <div className="flex items-center gap-3">
             <div
               className={`p-2.5 rounded-xl ${
@@ -36,41 +40,31 @@ export const ConfirmModal: React.FC = () => {
             >
               <AlertTriangle className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-vault-text text-lg">{confirmModal.title}</h3>
+            <DialogTitle className="text-lg">{confirmModal.title}</DialogTitle>
           </div>
-          <button
-            onClick={closeConfirmModal}
-            className="p-1 rounded-lg hover:bg-white/10 text-vault-muted hover:text-vault-text"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        </DialogHeader>
 
-        <p className="text-sm text-vault-muted leading-relaxed">
+        <DialogDescription className="text-sm leading-relaxed">
           {confirmModal.message}
-        </p>
+        </DialogDescription>
 
-        <div className="flex justify-end gap-3 pt-2">
-          <button
+        <DialogFooter className="border-none pt-2">
+          <Button
             type="button"
+            variant="ghost"
             onClick={closeConfirmModal}
-            className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-vault-muted hover:text-vault-text text-sm font-medium transition-colors"
           >
             Hủy
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={isDanger ? "destructive" : "default"}
             onClick={handleConfirm}
-            className={`px-5 py-2.5 rounded-xl font-medium text-sm shadow-lg transition-colors text-white ${
-              isDanger
-                ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30'
-                : 'bg-vault-accent hover:bg-vault-accent/90 shadow-vault-accent/30'
-            }`}
           >
             {confirmModal.confirmText || (isDanger ? 'Xác nhận xóa' : 'Xác nhận')}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
