@@ -2,12 +2,13 @@ import React from 'react';
 import { useLibrary } from '../contexts/LibraryContext';
 import { useAudio } from '../contexts/AudioContext';
 import { useUI } from '../contexts/UIContext';
-import { Play, Music, Clock, Info } from 'lucide-react';
+import { Play, Music, Clock } from 'lucide-react';
+import { Badge } from '../components/ui/badge';
 
 export const SongsView: React.FC = () => {
   const { songs } = useLibrary();
   const { playSong, currentSong } = useAudio();
-  const { searchQuery, setSelectedSong, setActiveModal } = useUI();
+  const { searchQuery } = useUI();
 
   const filteredSongs = songs.filter(
     (s) =>
@@ -53,7 +54,6 @@ export const SongsView: React.FC = () => {
                 <th className="px-6 py-4 text-right">
                   <Clock className="w-4 h-4 inline" />
                 </th>
-                <th className="px-4 py-4 w-12 text-center">Chi tiết</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -102,27 +102,13 @@ export const SongsView: React.FC = () => {
                     <td className="px-6 py-4 text-vault-muted">{song.album}</td>
 
                     <td className="px-6 py-4 text-center">
-                      <span className="bronze-badge px-2 py-0.5 rounded text-xs font-semibold">
+                      <Badge variant="bronze" className="text-xs font-semibold">
                         {song.bitrate || 'Lossless'}
-                      </span>
+                      </Badge>
                     </td>
 
                     <td className="px-6 py-4 text-right font-mono text-vault-muted">
                       {formatTime(song.duration)}
-                    </td>
-
-                    <td className="px-4 py-4 text-center">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedSong(song);
-                          setActiveModal('song_detail');
-                        }}
-                        className="p-1.5 rounded-lg hover:bg-white/10 text-vault-muted hover:text-vault-text transition-colors"
-                        title="Xem chi tiết bài hát"
-                      >
-                        <Info className="w-4 h-4" />
-                      </button>
                     </td>
                   </tr>
                 );

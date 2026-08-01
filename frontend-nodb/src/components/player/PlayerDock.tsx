@@ -54,44 +54,56 @@ export const PlayerDock: React.FC = () => {
 
   return (
     <TooltipProvider>
-      <div className="fixed bottom-0 left-0 right-0 h-24 bg-[#12141A]/95 border-t border-white/10 backdrop-blur-2xl px-6 flex items-center justify-between z-40 shadow-2xl">
+      <div
+        className="fixed bottom-3 left-6 right-6 h-24 glass-dock rounded-3xl px-6 py-3 flex items-center justify-between z-40"
+        style={{ transform: 'translateZ(0)' }}
+      >
         {/* 1. Left: Current Track Meta (Clickable to open Fullscreen Studio Monitor) */}
-        <div
-          onClick={handleOpenSongDetail}
-          className="flex items-center gap-4 w-1/4 min-w-[240px] cursor-pointer group hover:opacity-95 transition-all"
-          title="Mở màn hình phát nhạc Studio toàn màn hình"
-        >
-          <div className="relative shrink-0">
-            {currentSong.coverBlobUrl ? (
-              <img
-                src={currentSong.coverBlobUrl}
-                alt={currentSong.title}
-                className="w-14 h-14 rounded-2xl object-cover shadow-xl border border-white/15 group-hover:scale-105 transition-transform"
-              />
-            ) : (
-              <div className="w-14 h-14 rounded-2xl bg-vault-accent/20 border border-vault-accent/30 flex items-center justify-center text-vault-accent group-hover:scale-105 transition-transform">
-                <Music className="w-7 h-7" />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              onClick={handleOpenSongDetail}
+              className="flex items-center gap-4 w-1/4 min-w-[240px] cursor-pointer group hover:opacity-95 transition-all p-1.5 rounded-2xl hover:bg-white/5"
+            >
+              <div className="relative shrink-0">
+                {currentSong.coverBlobUrl ? (
+                  <img
+                    src={currentSong.coverBlobUrl}
+                    alt={currentSong.title}
+                    className="w-14 h-14 rounded-2xl object-cover shadow-xl border border-white/15 group-hover:scale-105 transition-transform"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl bg-vault-accent/20 border border-vault-accent/30 flex items-center justify-center text-vault-accent group-hover:scale-105 transition-transform">
+                    <Music className="w-7 h-7" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                  <Maximize2 className="w-5 h-5" />
+                </div>
               </div>
-            )}
-            <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-              <Maximize2 className="w-5 h-5" />
-            </div>
-          </div>
 
-          <div className="overflow-hidden space-y-0.5">
-            <h4 className="font-bold text-vault-text text-sm sm:text-base truncate group-hover:text-vault-accent transition-colors leading-snug">
-              {currentSong.title}
-            </h4>
-            <p className="text-xs text-vault-muted font-medium truncate">
-              {currentSong.artist} — <span className="opacity-75">{currentSong.album}</span>
-            </p>
-            <div className="pt-0.5">
-              <Badge variant="bronze" className="text-[10px] px-2 py-0.5">
-                {currentSong.bitrate || 'FLAC Lossless'}
-              </Badge>
+              <div className="overflow-hidden space-y-0.5 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <h4 className="font-bold text-vault-text text-sm sm:text-base truncate group-hover:text-vault-accent transition-colors leading-snug">
+                    {currentSong.title}
+                  </h4>
+                  <Maximize2 className="w-3.5 h-3.5 text-vault-accent shrink-0 opacity-70 group-hover:opacity-100 transition-all" />
+                </div>
+                <p className="text-xs text-vault-muted font-medium truncate">
+                  {currentSong.artist} — <span className="opacity-75">{currentSong.album}</span>
+                </p>
+                <div className="pt-0.5">
+                  <Badge variant="bronze" className="text-[10px] px-2 py-0.5">
+                    {currentSong.bitrate || 'FLAC Lossless'}
+                  </Badge>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            Mở Studio Wall Monitor (Chi tiết bài hát)
+          </TooltipContent>
+        </Tooltip>
 
         {/* 2. Center: Playback Controls & High-Precision Shadcn Slider */}
         <div className="flex flex-col items-center gap-2 w-2/4 max-w-xl">

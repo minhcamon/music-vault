@@ -1,7 +1,7 @@
 import React from 'react';
 import { useUI } from '../../contexts/UIContext';
 import { useLibrary } from '../../contexts/LibraryContext';
-import { Music, Disc, User, HardDrive, Shield } from 'lucide-react';
+import { Music, Disc, User, HardDrive } from 'lucide-react';
 import type { ViewMode } from '../../types';
 
 export const Sidebar: React.FC = () => {
@@ -16,13 +16,11 @@ export const Sidebar: React.FC = () => {
     ];
 
     return (
-        <aside className="w-64 border-r border-vault-border bg-vault-bg/80 backdrop-blur-xl flex flex-col justify-between p-4 select-none">
+        <aside className="w-64 glass-sidebar flex flex-col justify-between p-4 select-none relative z-20">
             <div className="space-y-6">
                 {/* Logo */}
                 <div className="flex items-center gap-3 px-3 py-2">
-                    <div className="w-9 h-9 rounded-xl bg-vault-accent/20 border border-vault-accent/40 flex items-center justify-center text-vault-accent shadow-lg shadow-vault-accent/20">
-                        <Shield className="w-5 h-5 fill-current" />
-                    </div>
+                    <img src="/logo.png" alt="Logo Music Vault" className="w-10 h-10" />
                     <div>
                         <h1 className="font-bold text-vault-text text-base leading-none">Music Vault</h1>
                         <span className="text-[10px] text-vault-muted font-mono tracking-widest uppercase">

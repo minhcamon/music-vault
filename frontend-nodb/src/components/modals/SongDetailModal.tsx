@@ -13,7 +13,6 @@ import {
   Maximize2,
   Minimize2,
   ListMusic,
-  Radio,
   Music,
   Repeat,
   Repeat1,
@@ -162,9 +161,7 @@ export const SongDetailModal: React.FC = () => {
           >
             {/* Left: Digital Clock & Date */}
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-2xl bg-vault-accent/20 border border-vault-accent/40 flex items-center justify-center text-vault-accent shadow-lg shadow-vault-accent/20">
-                <Radio className="w-5 h-5 animate-pulse" />
-              </div>
+              <img src="/logo.png" alt="Logo Music Vault" className="w-10 h-10" />
               <div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5 text-vault-accent" />

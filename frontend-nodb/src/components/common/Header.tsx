@@ -1,13 +1,12 @@
 import React from 'react';
 import { useUI } from '../../contexts/UIContext';
 import { useLibrary } from '../../contexts/LibraryContext';
-import { Search, FolderPlus, Sparkles, RefreshCw } from 'lucide-react';
+import { Search, Sparkles, RefreshCw } from 'lucide-react';
 import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
 
 export const Header: React.FC = () => {
-  const { searchQuery, setSearchQuery, setActiveModal } = useUI();
+  const { searchQuery, setSearchQuery } = useUI();
   const { isScanning, scanProgress } = useLibrary();
 
   const scanPercent = scanProgress.total > 0
@@ -15,7 +14,7 @@ export const Header: React.FC = () => {
     : 0;
 
   return (
-    <header className="h-16 border-b border-vault-border bg-vault-bg/60 backdrop-blur-xl px-6 flex items-center justify-between sticky top-0 z-30">
+    <header className="h-16 glass-header px-6 flex items-center justify-between sticky top-0 z-30">
       {/* Search Input */}
       <div className="relative w-80">
         <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-vault-muted" />
@@ -50,15 +49,6 @@ export const Header: React.FC = () => {
             <span>Client-Side No-DB Engine</span>
           </Badge>
         )}
-
-        <Button
-          variant="glass"
-          onClick={() => setActiveModal('add_source')}
-          className="gap-2"
-        >
-          <FolderPlus className="w-4 h-4 text-vault-accent" />
-          Thêm Nguồn Nhạc
-        </Button>
       </div>
     </header>
   );
