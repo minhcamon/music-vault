@@ -4,6 +4,8 @@ import { ProviderRegistry } from '../providers';
 import { db } from '../db/database';
 import { FileRefRegistry } from '../services/fileRefRegistry';
 
+export type RepeatMode = 'off' | 'all' | 'one';
+
 interface AudioContextType {
   currentSong: Song | null;
   isPlaying: boolean;
@@ -13,6 +15,8 @@ interface AudioContextType {
   setVolume: (vol: number) => void;
   queue: Song[];
   queueIndex: number;
+  repeatMode: RepeatMode;
+  toggleRepeatMode: () => void;
   playSong: (song: Song, songList?: Song[]) => Promise<void>;
   togglePlayPause: () => void;
   seek: (time: number) => void;
@@ -28,11 +32,27 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(0.8);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>('off');
 
   const [queue, setQueue] = useState<Song[]>([]);
   const [queueIndex, setQueueIndex] = useState(-1);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const repeatModeRef = useRef<RepeatMode>('off');
+  const queueRef = useRef<Song[]>([]);
+  const queueIndexRef = useRef<number>(-1);
+
+  useEffect(() => {
+    repeatModeRef.current = repeatMode;
+  }, [repeatMode]);
+
+  useEffect(() => {
+    queueRef.current = queue;
+  }, [queue]);
+
+  useEffect(() => {
+    queueIndexRef.current = queueIndex;
+  }, [queueIndex]);
 
   useEffect(() => {
     const audio = new Audio();
@@ -40,7 +60,32 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleDurationChange = () => setDuration(audio.duration || 0);
-    const handleEnded = () => playNext();
+
+    const handleEnded = () => {
+      const mode = repeatModeRef.current;
+      const q = queueRef.current;
+      const idx = queueIndexRef.current;
+
+      if (mode === 'one') {
+        audio.currentTime = 0;
+        audio.play().catch(console.error);
+      } else if (mode === 'all') {
+        if (q.length > 0) {
+          const nextIdx = (idx + 1) % q.length;
+          setQueueIndex(nextIdx);
+          playSong(q[nextIdx], q);
+        }
+      } else {
+        // 'off' mode
+        if (q.length > 0 && idx < q.length - 1) {
+          const nextIdx = idx + 1;
+          setQueueIndex(nextIdx);
+          playSong(q[nextIdx], q);
+        } else {
+          setIsPlaying(false);
+        }
+      }
+    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('durationchange', handleDurationChange);
@@ -53,6 +98,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audio.pause();
     };
   }, []);
+
+  const toggleRepeatMode = () => {
+    setRepeatMode((prev) => {
+      if (prev === 'off') return 'all';
+      if (prev === 'all') return 'one';
+      return 'off';
+    });
+  };
 
   const setVolume = (vol: number) => {
     setVolumeState(vol);
@@ -111,15 +164,29 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const playNext = () => {
-    if (queue.length === 0 || queueIndex >= queue.length - 1) return;
-    const nextIdx = queueIndex + 1;
+    if (queue.length === 0) return;
+    let nextIdx = queueIndex + 1;
+    if (nextIdx >= queue.length) {
+      if (repeatMode === 'all') {
+        nextIdx = 0;
+      } else {
+        return;
+      }
+    }
     setQueueIndex(nextIdx);
     playSong(queue[nextIdx], queue);
   };
 
   const playPrev = () => {
-    if (queue.length === 0 || queueIndex <= 0) return;
-    const prevIdx = queueIndex - 1;
+    if (queue.length === 0) return;
+    let prevIdx = queueIndex - 1;
+    if (prevIdx < 0) {
+      if (repeatMode === 'all') {
+        prevIdx = queue.length - 1;
+      } else {
+        return;
+      }
+    }
     setQueueIndex(prevIdx);
     playSong(queue[prevIdx], queue);
   };
@@ -135,6 +202,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setVolume,
         queue,
         queueIndex,
+        repeatMode,
+        toggleRepeatMode,
         playSong,
         togglePlayPause,
         seek,

@@ -20,13 +20,15 @@ export const ConfirmModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-[70] flex items-center justify-center p-4">
       <div className="glass-panel w-full max-w-md rounded-2xl border border-vault-border p-6 space-y-5 shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
               className={`p-2.5 rounded-xl ${
-                isDanger ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-vault-accent/15 text-vault-accent border border-vault-accent/30'
+                isDanger
+                  ? 'bg-red-500/15 text-red-400 border border-red-500/30'
+                  : 'bg-vault-accent/15 text-vault-accent border border-vault-accent/30'
               }`}
             >
               <AlertTriangle className="w-5 h-5" />
