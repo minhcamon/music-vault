@@ -1,4 +1,4 @@
-import { rateLimiter, getClientIp } from './_lib/rate-limiter';
+import { rateLimiter, getClientIp } from './_lib/rate-limiter.js';
 
 function decorateResponse(res: any) {
   if (!res.status) {
