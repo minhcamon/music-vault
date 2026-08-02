@@ -34,12 +34,15 @@ export class LibraryIndexer {
         if (file.fileRef instanceof File || file.fileRef instanceof Blob) {
           parsedTag = await MetadataService.parseBlobOrFile(file.fileRef, file.path || file.name);
         } else {
-          // Fallback for cloud remote files: read first 512KB to capture FLAC Vorbis block
+          // Fallback cho remote cloud files: đọc 512KB đầu để trích xuất thẻ ID3/Vorbis
           try {
+            // Thêm delay nhỏ 80ms giữa các file để không kích hoạt hệ thống Google Drive Anti-Bot
+            await new Promise((resolve) => setTimeout(resolve, 80));
             const buffer = await provider.readRange(file.fileRef || file.id, 0, 512 * 1024);
             const blob = new Blob([buffer], { type: file.mimeType });
             parsedTag = await MetadataService.parseBlobOrFile(blob, file.path || file.name);
           } catch (e) {
+            console.warn(`[Indexer] Không thể đọc băm tag cho file ${file.name}, chuyển sang tự động bóc tách tên file:`, e);
             parsedTag = await MetadataService.parseBlobOrFile(new Blob([]), file.path || file.name);
           }
         }

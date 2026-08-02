@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/gdrive/files",
+      "destination": "/api/gdrive/files.ts"
+    },
+    {
+      "source": "/api/gdrive/media",
+      "destination": "/api/gdrive/media.ts"
+    }
+  ]
+}

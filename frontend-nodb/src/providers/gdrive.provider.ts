@@ -5,50 +5,55 @@ export class GoogleDriveProvider implements IStorageProvider {
     type: 'GDRIVE',
     name: 'Google Drive',
     iconName: 'Cloud',
-    description: 'Kết nối trực tiếp tới Google Drive API v3 để quét & phát nhạc',
+    description: 'Kết nối Google Drive qua BFF Proxy bảo mật (Không nhúng API Key trên browser)',
     configFields: [
       {
         key: 'folderId',
-        label: 'Google Drive Folder ID / Link',
+        label: 'Google Drive Folder ID hoặc Đường dẫn (Link)',
         type: 'text',
-        placeholder: '1A2b3C4d5E6f...',
+        placeholder: '1A2b3C4d5E6f... hoặc https://drive.google.com/drive/folders/...',
         required: true,
-      },
-      {
-        key: 'apiKey',
-        label: 'Google API Key (Tùy chọn cho public folder)',
-        type: 'password',
-        placeholder: 'AIzaSy...',
       },
     ],
   };
 
   private folderId: string = '';
-  private apiKey: string = '';
+
+  private extractFolderId(input: string): string {
+    if (!input) return '';
+    const folderMatch = input.match(/folders\/([a-zA-Z0-9_-]+)/);
+    if (folderMatch) return folderMatch[1];
+    const idMatch = input.match(/id=([a-zA-Z0-9_-]+)/);
+    if (idMatch) return idMatch[1];
+    return input.trim();
+  }
 
   public async init(config: Record<string, any>): Promise<boolean> {
-    this.folderId = config.folderId || '';
-    this.apiKey = config.apiKey || '';
+    this.folderId = this.extractFolderId(config.folderId || '');
     return true;
   }
 
   public async validateConfig(config: Record<string, any>): Promise<{ valid: boolean; error?: string }> {
     if (!config.folderId) {
-      return { valid: false, error: 'Vui lòng nhập Folder ID Google Drive' };
+      return { valid: false, error: 'Vui lòng nhập Folder ID hoặc Link Google Drive' };
     }
     return { valid: true };
   }
 
   public async listFiles(): Promise<StorageFile[]> {
-    if (!this.folderId) return [];
+    if (!this.folderId) {
+      console.warn('GoogleDriveProvider: Thiếu folderId');
+      return [];
+    }
 
     try {
-      const query = `'${this.folderId}' in parents and (mimeType contains 'audio/' or name contains '.flac' or name contains '.mp3') and trashed = false`;
-      const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,mimeType,size,webContentLink)&key=${this.apiKey}`;
+      const url = `/api/gdrive/files?folderId=${encodeURIComponent(this.folderId)}`;
       
       const res = await fetch(url);
       if (!res.ok) {
-        throw new Error(`Google Drive API Error: ${res.statusText}`);
+        const errorData = await res.json().catch(() => ({}));
+        console.error(`Google Drive Proxy Error (${res.status}):`, errorData);
+        throw new Error(errorData.error || `BFF Proxy HTTP ${res.status}: ${res.statusText}`);
       }
 
       const data = await res.json();
@@ -59,28 +64,31 @@ export class GoogleDriveProvider implements IStorageProvider {
         name: file.name,
         path: file.name,
         size: parseInt(file.size || '0', 10),
-        mimeType: file.mimeType || 'audio/flac',
-        fileRef: file,
+        mimeType: file.mimeType || 'audio/mpeg',
+        fileRef: file.id,
       }));
     } catch (err: any) {
-      console.warn('Google Drive list error:', err);
+      console.error('Google Drive list error:', err);
       return [];
     }
   }
 
   public async readRange(fileRef: any, start: number, end: number): Promise<ArrayBuffer> {
-    const fileId = fileRef.id || fileRef;
-    const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${this.apiKey}`;
+    const fileId = typeof fileRef === 'string' ? fileRef : fileRef.id || fileRef;
+    const url = `/api/gdrive/media?fileId=${encodeURIComponent(fileId)}`;
     const res = await fetch(url, {
       headers: {
         Range: `bytes=${start}-${end}`,
       },
     });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch media range from BFF: ${res.statusText}`);
+    }
     return await res.arrayBuffer();
   }
 
   public async getStreamUrl(fileRef: any): Promise<string> {
-    const fileId = fileRef.id || fileRef;
-    return `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${this.apiKey}`;
+    const fileId = typeof fileRef === 'string' ? fileRef : fileRef.id || fileRef;
+    return `/api/gdrive/media?fileId=${encodeURIComponent(fileId)}`;
   }
 }
