@@ -1,4 +1,5 @@
 import type { IStorageProvider, StorageFile, StorageProviderMeta } from './base.provider';
+import { isAudioFile } from '../utils/audioExtensions';
 
 export class GoogleDriveProvider implements IStorageProvider {
   public readonly meta: StorageProviderMeta = {
@@ -59,14 +60,18 @@ export class GoogleDriveProvider implements IStorageProvider {
       const data = await res.json();
       const files = data.files || [];
 
-      return files.map((file: any) => ({
-        id: file.id,
-        name: file.name,
-        path: file.name,
-        size: parseInt(file.size || '0', 10),
-        mimeType: file.mimeType || 'audio/mpeg',
-        fileRef: file.id,
-      }));
+      return files
+        .filter((file: any) => isAudioFile(file.name || ''))
+        .map((file: any) => ({
+          id: file.id,
+          name: file.name,
+          path: file.name,
+          size: parseInt(file.size || '0', 10),
+          mimeType: file.mimeType || 'audio/mpeg',
+          md5Checksum: file.md5Checksum,
+          modifiedTime: file.modifiedTime,
+          fileRef: file.id,
+        }));
     } catch (err: any) {
       console.error('Google Drive list error:', err);
       return [];

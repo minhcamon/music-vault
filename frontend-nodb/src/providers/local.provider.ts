@@ -1,4 +1,5 @@
 import type { IStorageProvider, StorageFile, StorageProviderMeta } from './base.provider';
+import { isAudioFile, isImageFile } from '../utils/audioExtensions';
 
 export class LocalStorageProvider implements IStorageProvider {
   public readonly meta: StorageProviderMeta = {
@@ -31,8 +32,6 @@ export class LocalStorageProvider implements IStorageProvider {
     }
 
     const audioFiles: StorageFile[] = [];
-    const audioExtensions = ['.flac', '.mp3', '.wav', '.m4a', '.aac', '.ogg'];
-    const imageExtensions = ['.png', '.jpg', '.jpeg', '.webp'];
 
     async function scanDirectory(handle: any, currentPath: string) {
       const entries: any[] = [];
@@ -44,8 +43,7 @@ export class LocalStorageProvider implements IStorageProvider {
         entries.push(entry);
         if (entry.kind === 'file') {
           const lowerName = entry.name.toLowerCase();
-          const ext = lowerName.slice(lowerName.lastIndexOf('.'));
-          if (imageExtensions.includes(ext)) {
+          if (isImageFile(lowerName)) {
             if (
               lowerName.includes('cover') ||
               lowerName.includes('folder') ||
@@ -71,8 +69,7 @@ export class LocalStorageProvider implements IStorageProvider {
       // Second pass: process audio files & recurse subdirectories
       for (const entry of entries) {
         if (entry.kind === 'file') {
-          const ext = entry.name.slice(entry.name.lastIndexOf('.')).toLowerCase();
-          if (audioExtensions.includes(ext)) {
+          if (isAudioFile(entry.name)) {
             const file = await entry.getFile();
             audioFiles.push({
               id: `${currentPath}/${entry.name}`,

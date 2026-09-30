@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { UIProvider } from './contexts/UIContext';
 import { LibraryProvider } from './contexts/LibraryContext';
 import { AudioProvider } from './contexts/AudioContext';
@@ -10,6 +11,16 @@ import { ViewRouter } from './views/ViewRouter';
 import { ModalManager } from './components/modals/ModalManager';
 
 export default function App() {
+  useEffect(() => {
+    // Request persistent storage so IndexedDB & cover blobs are not cleared automatically
+    if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().then((persistent) => {
+        if (persistent) {
+          console.log('[Storage] Persistent storage granted by browser');
+        }
+      });
+    }
+  }, []);
   return (
     <UIProvider>
       <LibraryProvider>

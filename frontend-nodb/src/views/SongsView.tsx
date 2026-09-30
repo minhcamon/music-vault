@@ -4,6 +4,7 @@ import { useAudio } from '../contexts/AudioContext';
 import { useUI } from '../contexts/UIContext';
 import { Play, Music, Clock } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
+import { CoverImage } from '../components/common/CoverImage';
 
 export const SongsView: React.FC = () => {
   const { songs } = useLibrary();
@@ -80,17 +81,14 @@ export const SongsView: React.FC = () => {
                       </td>
 
                       <td className="px-3 sm:px-6 py-3 sm:py-4 font-medium flex items-center gap-2.5 sm:gap-3">
-                        {song.coverBlobUrl ? (
-                          <img
-                            src={song.coverBlobUrl}
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-white/10 shrink-0 bg-vault-accent/20 flex items-center justify-center">
+                          <CoverImage
+                            coverId={song.coverId}
+                            coverBlobUrl={song.coverBlobUrl}
                             alt={song.title}
-                            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover border border-white/10 shrink-0"
+                            fallbackIcon={<Music className="w-4 h-4 sm:w-5 sm:h-5 text-vault-accent" />}
                           />
-                        ) : (
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-vault-accent/20 border border-vault-accent/30 flex items-center justify-center text-vault-accent shrink-0">
-                            <Music className="w-4 h-4 sm:w-5 sm:h-5" />
-                          </div>
-                        )}
+                        </div>
                         <div className="overflow-hidden flex-1 min-w-0">
                           <div className={`font-bold text-xs sm:text-sm truncate ${isCurrent ? 'text-vault-accent' : 'text-vault-text'}`}>
                             {song.title}

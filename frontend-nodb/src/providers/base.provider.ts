@@ -24,6 +24,8 @@ export interface StorageFile {
   path: string;
   size: number;
   mimeType: string;
+  md5Checksum?: string;
+  modifiedTime?: string;
   fileRef?: any;       // FileSystemFileHandle, File, or Cloud File Metadata
   folderCoverBlobUrl?: string; // Cover image (cover.png/jpg) found in the same folder
 }

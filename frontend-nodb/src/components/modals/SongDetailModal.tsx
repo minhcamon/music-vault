@@ -21,6 +21,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { VinylRecord } from '../common/VinylRecord';
+import { CoverImage } from '../common/CoverImage';
 
 export const SongDetailModal: React.FC = () => {
   const { activeModal, setActiveModal, selectedSong, isQueueDrawerOpen, setIsQueueDrawerOpen } = useUI();
@@ -249,18 +250,14 @@ export const SongDetailModal: React.FC = () => {
                 key={`cover-${targetSong.id}`}
                 className="relative z-10 w-48 h-48 sm:w-72 sm:h-72 rounded-3xl overflow-hidden glass-dock border-2 border-white/20 shadow-2xl p-2 sm:p-2.5 bg-black/60 animate-album-swap"
               >
-                <div className="w-full h-full rounded-2xl overflow-hidden relative">
-                  {targetSong.coverBlobUrl ? (
-                    <img
-                      src={targetSong.coverBlobUrl}
-                      alt={targetSong.album}
-                      className="w-full h-full object-cover rounded-2xl"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-vault-accent/20 via-purple-600/20 to-black flex items-center justify-center">
-                      <Music className="w-16 h-16 sm:w-24 sm:h-24 text-vault-accent opacity-80" />
-                    </div>
-                  )}
+                <div className="w-full h-full rounded-2xl overflow-hidden relative flex items-center justify-center">
+                  <CoverImage
+                    coverId={targetSong.coverId}
+                    coverBlobUrl={targetSong.coverBlobUrl}
+                    alt={targetSong.album}
+                    className="w-full h-full object-cover rounded-2xl"
+                    fallbackIcon={<Music className="w-16 h-16 sm:w-24 sm:h-24 text-vault-accent opacity-80" />}
+                  />
                 </div>
               </div>
             </div>

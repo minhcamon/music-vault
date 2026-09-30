@@ -4,6 +4,7 @@ import { useUI } from '../../contexts/UIContext';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import type { Song } from '../../types';
 import { X, Play, Music, ListMusic, Volume2 } from 'lucide-react';
+import { CoverImage } from '../common/CoverImage';
 
 // ─── Memoized Row – only re-renders when its own props change ──────────────────
 interface QueueRowProps {
@@ -38,19 +39,14 @@ const QueueRow = memo<QueueRowProps>(({ song, index, isCurrent, isPlaying, onPla
         )}
       </div>
 
-      {song.coverBlobUrl ? (
-        <img
-          src={song.coverBlobUrl}
+      <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10 bg-vault-accent/15 flex items-center justify-center">
+        <CoverImage
+          coverId={song.coverId}
+          coverBlobUrl={song.coverBlobUrl}
           alt={song.title}
-          loading="lazy"
-          decoding="async"
-          className="w-10 h-10 rounded-xl object-cover shrink-0 border border-white/10"
+          fallbackIcon={<Music className="w-5 h-5 text-vault-accent" />}
         />
-      ) : (
-        <div className="w-10 h-10 rounded-xl bg-vault-accent/15 border border-vault-accent/30 flex items-center justify-center text-vault-accent shrink-0">
-          <Music className="w-5 h-5" />
-        </div>
-      )}
+      </div>
 
       <div className="overflow-hidden">
         <div className={`text-sm font-bold truncate ${isCurrent ? 'text-vault-accent' : 'text-vault-text'}`}>

@@ -1,4 +1,5 @@
 import * as mmb from 'music-metadata-browser';
+import { db } from '../db/database';
 
 export interface ParsedMetadata {
   title: string;
@@ -13,10 +14,71 @@ export interface ParsedMetadata {
   discNumber?: number;
   genre?: string;
   year?: number;
-  coverBlobUrl?: string;
+  coverId?: string;
+  coverBlobUrl?: string; // Kept for legacy fallback
 }
 
 export class MetadataService {
+  /**
+   * Resize cover image to max 500x500 JPEG (0.85 quality), compute SHA-1 hash, and persist to Dexie covers table.
+   */
+  public static async processCoverArt(rawBlob: Blob): Promise<{ coverId: string; blob: Blob } | undefined> {
+    try {
+      if (typeof createImageBitmap !== 'function' || typeof document === 'undefined') {
+        return undefined;
+      }
+
+      const bitmap = await createImageBitmap(rawBlob);
+      const MAX_SIZE = 500;
+      let width = bitmap.width;
+      let height = bitmap.height;
+
+      if (width > MAX_SIZE || height > MAX_SIZE) {
+        if (width > height) {
+          height = Math.max(1, Math.round((height * MAX_SIZE) / width));
+          width = MAX_SIZE;
+        } else {
+          width = Math.max(1, Math.round((width * MAX_SIZE) / height));
+          height = MAX_SIZE;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        bitmap.close();
+        return undefined;
+      }
+
+      ctx.drawImage(bitmap, 0, 0, width, height);
+      bitmap.close();
+
+      const jpegBlob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85);
+      });
+
+      if (!jpegBlob) return undefined;
+
+      const arrayBuffer = await jpegBlob.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-1', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const coverId = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
+      await db.covers.put({
+        id: coverId,
+        blob: jpegBlob,
+        mimeType: 'image/jpeg',
+      });
+
+      return { coverId, blob: jpegBlob };
+    } catch (e) {
+      console.warn('[MetadataService] Failed to process cover art:', e);
+      return undefined;
+    }
+  }
+
   private static getNativeTagValue(
     native: Record<string, any[]> | undefined,
     targetKeys: string[]
@@ -150,6 +212,7 @@ export class MetadataService {
     let parsedArtist: string | undefined = undefined;
     let parsedAlbum: string | undefined = undefined;
     let parsedDuration = 0;
+    let coverId: string | undefined = undefined;
     let coverBlobUrl: string | undefined = undefined;
     let codec = fileName.split('.').pop()?.toUpperCase() || 'FLAC';
     let bitrate: string | undefined = undefined;
@@ -173,7 +236,10 @@ export class MetadataService {
           pic.data.byteOffset + pic.data.byteLength
         ) as ArrayBuffer;
         const blob = new Blob([buffer], { type: pic.format });
-        coverBlobUrl = URL.createObjectURL(blob);
+        const processed = await MetadataService.processCoverArt(blob);
+        if (processed) {
+          coverId = processed.coverId;
+        }
       }
 
       // Title
@@ -275,6 +341,7 @@ export class MetadataService {
       discNumber,
       genre,
       year,
+      coverId,
       coverBlobUrl,
     };
   }

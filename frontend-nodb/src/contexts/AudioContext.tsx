@@ -38,6 +38,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [queueIndex, setQueueIndex] = useState(-1);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const activeBlobUrlRef = useRef<string | null>(null);
   const repeatModeRef = useRef<RepeatMode>('off');
   const queueRef = useRef<Song[]>([]);
   const queueIndexRef = useRef<number>(-1);
@@ -96,6 +97,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audio.removeEventListener('durationchange', handleDurationChange);
       audio.removeEventListener('ended', handleEnded);
       audio.pause();
+      if (activeBlobUrlRef.current) {
+        URL.revokeObjectURL(activeBlobUrlRef.current);
+        activeBlobUrlRef.current = null;
+      }
     };
   }, []);
 
@@ -127,6 +132,16 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       await provider.init(source.config);
       const fileRef = FileRefRegistry.get(song.id) || song.path;
       const streamUrl = await provider.getStreamUrl(fileRef);
+
+      // Clean up previous blob URL if exists to prevent memory leak
+      if (activeBlobUrlRef.current && activeBlobUrlRef.current !== streamUrl) {
+        URL.revokeObjectURL(activeBlobUrlRef.current);
+        activeBlobUrlRef.current = null;
+      }
+
+      if (streamUrl.startsWith('blob:')) {
+        activeBlobUrlRef.current = streamUrl;
+      }
 
       audioRef.current.src = streamUrl;
       audioRef.current.volume = volume;

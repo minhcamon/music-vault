@@ -86,7 +86,7 @@ export default async function handler(req: any, res: any) {
 
   try {
     const query = `'${cleanFolderId}' in parents and (mimeType contains 'audio/' or name contains '.flac' or name contains '.mp3' or name contains '.m4a' or name contains '.wav') and trashed = false`;
-    const targetUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,mimeType,size,webContentLink)&key=${apiKey}&pageSize=1000`;
+    const targetUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,mimeType,size,md5Checksum,modifiedTime,webContentLink)&key=${apiKey}&pageSize=1000`;
 
     const gdriveRes = await fetch(targetUrl);
 
@@ -99,8 +99,14 @@ export default async function handler(req: any, res: any) {
       });
     }
 
-    const data = await gdriveRes.json();
-    return res.status(200).json(data);
+    const data = (await gdriveRes.json()) as any;
+    const AUDIO_EXTS = ['.flac', '.mp3', '.wav', '.m4a', '.aac', '.ogg', '.opus', '.alac', '.aiff', '.wma', '.dsf', '.dff'];
+    const files = (data.files || []).filter((f: any) => {
+      const name = (f.name || '').toLowerCase();
+      return AUDIO_EXTS.some((ext) => name.endsWith(ext));
+    });
+
+    return res.status(200).json({ ...data, files });
   } catch (err: any) {
     console.error('BFF Proxy Error in /api/gdrive/files:', err);
     return res.status(500).json({

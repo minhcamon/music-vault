@@ -2,6 +2,7 @@ import React from 'react';
 import { useLibrary } from '../contexts/LibraryContext';
 import { useUI } from '../contexts/UIContext';
 import { Disc, Play, Trash2 } from 'lucide-react';
+import { CoverImage } from '../components/common/CoverImage';
 
 export const AlbumsView: React.FC = () => {
   const { albums, deleteAlbum } = useLibrary();
@@ -53,18 +54,14 @@ export const AlbumsView: React.FC = () => {
                 <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
 
-              <div className="aspect-square rounded-xl bg-white/5 overflow-hidden relative">
-                {album.coverBlobUrl ? (
-                  <img
-                    src={album.coverBlobUrl}
-                    alt={album.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-vault-accent/40">
-                    <Disc className="w-12 h-12 sm:w-16 sm:h-16" />
-                  </div>
-                )}
+              <div className="aspect-square rounded-xl bg-white/5 overflow-hidden relative flex items-center justify-center">
+                <CoverImage
+                  coverId={album.coverId}
+                  coverBlobUrl={album.coverBlobUrl}
+                  alt={album.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  fallbackIcon={<Disc className="w-12 h-12 sm:w-16 sm:h-16 text-vault-accent/40" />}
+                />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-vault-accent text-white flex items-center justify-center shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
                     <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current ml-0.5" />

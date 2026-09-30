@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAudio } from '../../contexts/AudioContext';
 import { useUI } from '../../contexts/UIContext';
+import { CoverImage } from '../common/CoverImage';
 import {
   Play,
   Pause,
@@ -69,17 +70,14 @@ export const PlayerDock: React.FC = () => {
               className="flex items-center gap-4 w-1/4 min-w-[220px] cursor-pointer group hover:opacity-95 transition-all p-1.5 rounded-2xl hover:bg-white/5"
             >
               <div className="relative shrink-0">
-                {currentSong.coverBlobUrl ? (
-                  <img
-                    src={currentSong.coverBlobUrl}
+                <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-xl border border-white/15 group-hover:scale-105 transition-transform bg-vault-accent/20 flex items-center justify-center">
+                  <CoverImage
+                    coverId={currentSong.coverId}
+                    coverBlobUrl={currentSong.coverBlobUrl}
                     alt={currentSong.title}
-                    className="w-14 h-14 rounded-2xl object-cover shadow-xl border border-white/15 group-hover:scale-105 transition-transform"
+                    fallbackIcon={<Music className="w-7 h-7 text-vault-accent" />}
                   />
-                ) : (
-                  <div className="w-14 h-14 rounded-2xl bg-vault-accent/20 border border-vault-accent/30 flex items-center justify-center text-vault-accent group-hover:scale-105 transition-transform">
-                    <Music className="w-7 h-7" />
-                  </div>
-                )}
+                </div>
                 <div className="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                   <Maximize2 className="w-5 h-5" />
                 </div>
@@ -258,17 +256,14 @@ export const PlayerDock: React.FC = () => {
           onClick={handleOpenSongDetail}
           className="flex items-center gap-3 flex-1 overflow-hidden pr-2 cursor-pointer"
         >
-          {currentSong.coverBlobUrl ? (
-            <img
-              src={currentSong.coverBlobUrl}
+          <div className="w-11 h-11 rounded-xl overflow-hidden border border-white/15 shrink-0 bg-vault-accent/20 flex items-center justify-center">
+            <CoverImage
+              coverId={currentSong.coverId}
+              coverBlobUrl={currentSong.coverBlobUrl}
               alt={currentSong.title}
-              className="w-11 h-11 rounded-xl object-cover border border-white/15 shrink-0"
+              fallbackIcon={<Music className="w-5 h-5 text-vault-accent" />}
             />
-          ) : (
-            <div className="w-11 h-11 rounded-xl bg-vault-accent/20 border border-vault-accent/30 flex items-center justify-center text-vault-accent shrink-0">
-              <Music className="w-5 h-5" />
-            </div>
-          )}
+          </div>
 
           <div className="overflow-hidden flex-1">
             <h4 className="font-bold text-vault-text text-xs truncate leading-snug">

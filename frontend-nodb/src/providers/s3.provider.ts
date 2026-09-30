@@ -1,4 +1,5 @@
 import type { IStorageProvider, StorageFile, StorageProviderMeta } from './base.provider';
+import { isAudioFile } from '../utils/audioExtensions';
 
 export class S3StorageProvider implements IStorageProvider {
   public readonly meta: StorageProviderMeta = {
@@ -49,14 +50,16 @@ export class S3StorageProvider implements IStorageProvider {
       const res = await fetch(manifestUrl);
       if (res.ok) {
         const files = await res.json();
-        return files.map((file: any) => ({
-          id: file.key || file.name,
-          name: file.name || file.key,
-          path: file.key || file.name,
-          size: file.size || 0,
-          mimeType: file.mimeType || 'audio/flac',
-          fileRef: file,
-        }));
+        return files
+          .filter((file: any) => isAudioFile(file.name || file.key || ''))
+          .map((file: any) => ({
+            id: file.key || file.name,
+            name: file.name || file.key,
+            path: file.key || file.name,
+            size: file.size || 0,
+            mimeType: file.mimeType || 'audio/flac',
+            fileRef: file,
+          }));
       }
     } catch (e) {
       console.warn('S3 list manifest fallback error:', e);

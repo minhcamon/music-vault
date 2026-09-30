@@ -3,6 +3,7 @@ import { useUI } from '../../contexts/UIContext';
 import { useLibrary } from '../../contexts/LibraryContext';
 import { useAudio } from '../../contexts/AudioContext';
 import { Play, Disc, Clock, Trash2 } from 'lucide-react';
+import { CoverImage } from '../common/CoverImage';
 import {
   Dialog,
   DialogContent,
@@ -55,17 +56,14 @@ export const AlbumDetailModal: React.FC = () => {
 
         {/* Album Header Info */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6 py-2">
-          {selectedAlbum.coverBlobUrl ? (
-            <img
-              src={selectedAlbum.coverBlobUrl}
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-2xl border border-white/10 shrink-0 bg-vault-accent/20 flex items-center justify-center">
+            <CoverImage
+              coverId={selectedAlbum.coverId}
+              coverBlobUrl={selectedAlbum.coverBlobUrl}
               alt={selectedAlbum.title}
-              className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover shadow-2xl border border-white/10 shrink-0"
+              fallbackIcon={<Disc className="w-12 h-12 sm:w-14 sm:h-14 text-vault-accent" />}
             />
-          ) : (
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-vault-accent/20 border border-vault-accent/30 flex items-center justify-center text-vault-accent shrink-0">
-              <Disc className="w-12 h-12 sm:w-14 sm:h-14" />
-            </div>
-          )}
+          </div>
 
           <div className="space-y-1.5 flex-1">
             <h2 className="text-xl sm:text-2xl font-bold text-vault-text leading-tight">
