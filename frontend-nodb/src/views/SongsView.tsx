@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLibrary } from '../contexts/LibraryContext';
 import { useAudio } from '../contexts/AudioContext';
 import { useUI } from '../contexts/UIContext';
-import { Play, Pause, Music, Clock, Sparkles, ArrowUpDown, Disc, FolderPlus } from 'lucide-react';
+import { Play, Pause, Music, Clock, Sparkles, ArrowUpDown, Disc, FolderPlus, ListPlus } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { CoverImage } from '../components/common/CoverImage';
 
@@ -12,7 +12,7 @@ type SongSort = 'title' | 'artist' | 'album' | 'duration' | 'year';
 export const SongsView: React.FC = () => {
   const { songs } = useLibrary();
   const { playSong, togglePlayPause, currentSong, isPlaying } = useAudio();
-  const { searchQuery, setViewMode, setActiveModal } = useUI();
+  const { searchQuery, setViewMode, setActiveModal, setSongToAddToPlaylist } = useUI();
 
   const [filterType, setFilterType] = useState<SongFilter>('all');
   const [sortBy, setSortBy] = useState<SongSort>('title');
@@ -60,6 +60,12 @@ export const SongsView: React.FC = () => {
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
     return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  const handleAddToPlaylist = (song: typeof songs[0], e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSongToAddToPlaylist(song);
+    setActiveModal('add_to_playlist');
   };
 
   const handleRowClick = (song: typeof songs[0]) => {
@@ -279,9 +285,19 @@ export const SongsView: React.FC = () => {
                         </Badge>
                       </td>
 
-                      {/* Duration (Tabular Mono) */}
+                      {/* Duration & Quick Action */}
                       <td className="px-3 sm:px-6 py-3 sm:py-4 text-right font-mono text-vault-muted text-xs sm:text-sm tabular-nums">
-                        {formatTime(song.duration)}
+                        <div className="flex items-center justify-end gap-2">
+                          <span>{formatTime(song.duration)}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => handleAddToPlaylist(song, e)}
+                            title="Thêm vào danh sách phát"
+                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-white/15 text-vault-muted hover:text-vault-accent transition-all cursor-pointer"
+                          >
+                            <ListPlus className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

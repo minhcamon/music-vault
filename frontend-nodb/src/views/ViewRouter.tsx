@@ -3,6 +3,7 @@ import { useUI } from '../contexts/UIContext';
 import { SongsView } from './SongsView';
 import { AlbumsView } from './AlbumsView';
 import { ArtistsView } from './ArtistsView';
+import { PlaylistsView } from './PlaylistsView';
 import { SourcesView } from './SourcesView';
 
 export const ViewRouter: React.FC = () => {
@@ -15,6 +16,8 @@ export const ViewRouter: React.FC = () => {
       return <AlbumsView />;
     case 'artists':
       return <ArtistsView />;
+    case 'playlists':
+      return <PlaylistsView />;
     case 'sources':
       return <SourcesView />;
     default:

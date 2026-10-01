@@ -1,18 +1,21 @@
 import React from 'react';
 import { useUI } from '../../contexts/UIContext';
 import { useLibrary } from '../../contexts/LibraryContext';
-import { Music, Disc, User, HardDrive } from 'lucide-react';
+import { Music, Disc, User, HardDrive, ListMusic } from 'lucide-react';
+import { usePlaylists } from '../../hooks/usePlaylists';
 import type { ViewMode } from '../../types';
 
 export const MobileNav: React.FC = () => {
   const { viewMode, setViewMode } = useUI();
   const { songs, albums, artists, sources } = useLibrary();
+  const { playlists } = usePlaylists();
 
   const navItems: { mode: ViewMode; label: string; icon: React.ReactNode; count: number }[] = [
     { mode: 'songs', label: 'Bài hát', icon: <Music className="w-5 h-5" />, count: songs.length },
     { mode: 'albums', label: 'Albums', icon: <Disc className="w-5 h-5" />, count: albums.length },
     { mode: 'artists', label: 'Nghệ sĩ', icon: <User className="w-5 h-5" />, count: artists.length },
-    { mode: 'sources', label: 'Nguồn nhạc', icon: <HardDrive className="w-5 h-5" />, count: sources.length },
+    { mode: 'playlists', label: 'Playlist', icon: <ListMusic className="w-5 h-5" />, count: playlists.length },
+    { mode: 'sources', label: 'Nguồn', icon: <HardDrive className="w-5 h-5" />, count: sources.length },
   ];
 
   return (

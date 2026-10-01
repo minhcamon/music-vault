@@ -2,7 +2,7 @@ import React from 'react';
 import { useUI } from '../../contexts/UIContext';
 import { useLibrary } from '../../contexts/LibraryContext';
 import { useAudio } from '../../contexts/AudioContext';
-import { Play, Disc, Clock, Trash2 } from 'lucide-react';
+import { Play, Disc, Clock, Trash2, ListPlus } from 'lucide-react';
 import { CoverImage } from '../common/CoverImage';
 import {
   Dialog,
@@ -14,7 +14,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 
 export const AlbumDetailModal: React.FC = () => {
-  const { activeModal, setActiveModal, selectedAlbum, openConfirmModal } = useUI();
+  const { activeModal, setActiveModal, selectedAlbum, openConfirmModal, setSongToAddToPlaylist } = useUI();
   const { songs, deleteAlbum } = useLibrary();
   const { playSong } = useAudio();
 
@@ -113,9 +113,25 @@ export const AlbumDetailModal: React.FC = () => {
                     </Badge>
                   </td>
                   <td className="px-3 sm:px-4 py-3 text-right font-mono text-xs text-vault-muted">
-                    {Math.floor(song.duration / 60)}:
-                    {Math.floor(song.duration % 60) < 10 ? '0' : ''}
-                    {Math.floor(song.duration % 60)}
+                    <div className="flex items-center justify-end gap-2">
+                      <span>
+                        {Math.floor(song.duration / 60)}:
+                        {Math.floor(song.duration % 60) < 10 ? '0' : ''}
+                        {Math.floor(song.duration % 60)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSongToAddToPlaylist(song);
+                          setActiveModal('add_to_playlist');
+                        }}
+                        title="Thêm vào danh sách phát"
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-white/15 text-vault-muted hover:text-vault-accent transition-all cursor-pointer"
+                      >
+                        <ListPlus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

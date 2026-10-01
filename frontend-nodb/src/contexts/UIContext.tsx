@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import type { ViewMode, ActiveModal, Album, Song } from '../types';
+import type { ViewMode, ActiveModal, Album, Song, Playlist } from '../types';
 
 export interface ConfirmModalState {
   isOpen: boolean;
@@ -21,6 +21,12 @@ interface UIContextType {
   setSelectedAlbum: (album: Album | null) => void;
   selectedSong: Song | null;
   setSelectedSong: (song: Song | null) => void;
+  selectedPlaylist: Playlist | null;
+  setSelectedPlaylist: (playlist: Playlist | null) => void;
+  playlistToEdit: Playlist | null;
+  setPlaylistToEdit: (playlist: Playlist | null) => void;
+  songToAddToPlaylist: Song | null;
+  setSongToAddToPlaylist: (song: Song | null) => void;
   isQueueDrawerOpen: boolean;
   setIsQueueDrawerOpen: (open: boolean) => void;
   isMobileSidebarOpen: boolean;
@@ -38,6 +44,9 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
+  const [playlistToEdit, setPlaylistToEdit] = useState<Playlist | null>(null);
+  const [songToAddToPlaylist, setSongToAddToPlaylist] = useState<Song | null>(null);
   const [isQueueDrawerOpen, setIsQueueDrawerOpen] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
@@ -69,6 +78,12 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         setSelectedAlbum,
         selectedSong,
         setSelectedSong,
+        selectedPlaylist,
+        setSelectedPlaylist,
+        playlistToEdit,
+        setPlaylistToEdit,
+        songToAddToPlaylist,
+        setSongToAddToPlaylist,
         isQueueDrawerOpen,
         setIsQueueDrawerOpen,
         isMobileSidebarOpen,
@@ -88,3 +103,4 @@ export const useUI = () => {
   if (!ctx) throw new Error('useUI must be used within UIProvider');
   return ctx;
 };
+

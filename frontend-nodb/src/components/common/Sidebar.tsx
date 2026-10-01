@@ -1,17 +1,20 @@
 import React from 'react';
 import { useUI } from '../../contexts/UIContext';
 import { useLibrary } from '../../contexts/LibraryContext';
-import { Music, Disc, User, HardDrive, X } from 'lucide-react';
+import { Music, Disc, User, HardDrive, ListMusic, X } from 'lucide-react';
+import { usePlaylists } from '../../hooks/usePlaylists';
 import type { ViewMode } from '../../types';
 
 export const Sidebar: React.FC = () => {
   const { viewMode, setViewMode, isMobileSidebarOpen, setIsMobileSidebarOpen } = useUI();
   const { songs, albums, artists, sources } = useLibrary();
+  const { playlists } = usePlaylists();
 
   const navItems: { mode: ViewMode; label: string; icon: React.ReactNode; count: number }[] = [
     { mode: 'songs', label: 'Tất cả bài hát', icon: <Music className="w-5 h-5" />, count: songs.length },
     { mode: 'albums', label: 'Albums', icon: <Disc className="w-5 h-5" />, count: albums.length },
     { mode: 'artists', label: 'Nghệ sĩ', icon: <User className="w-5 h-5" />, count: artists.length },
+    { mode: 'playlists', label: 'Danh sách phát', icon: <ListMusic className="w-5 h-5" />, count: playlists.length },
     { mode: 'sources', label: 'Nguồn nhạc', icon: <HardDrive className="w-5 h-5" />, count: sources.length },
   ];
 

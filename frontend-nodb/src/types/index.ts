@@ -69,9 +69,36 @@ export interface Playlist {
   id: string;
   name: string;
   description?: string;
+  coverId?: string;
   songIds: string[];
+  hiddenSongIds?: string[];
+  isPinned?: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CreatePlaylistDTO {
+  name: string;
+  description?: string;
+  initialSongIds?: string[];
+  coverId?: string;
+}
+
+export interface UpdatePlaylistDTO {
+  name?: string;
+  description?: string;
+  coverId?: string;
+  songIds?: string[];
+  hiddenSongIds?: string[];
+  isPinned?: boolean;
+}
+
+export interface PlaylistWithStats extends Playlist {
+  songs: Song[];
+  validSongs: Song[];
+  hiddenSongs: Song[];
+  totalDuration: number;
+  formattedDuration: string;
 }
 
 export interface PlaybackHistory {
@@ -82,5 +109,14 @@ export interface PlaybackHistory {
 
 export type ViewMode = 'songs' | 'albums' | 'artists' | 'playlists' | 'sources';
 
-export type ActiveModal = 'none' | 'source_manager' | 'add_source' | 'album_detail' | 'song_detail' | 'create_playlist';
+export type ActiveModal =
+  | 'none'
+  | 'source_manager'
+  | 'add_source'
+  | 'album_detail'
+  | 'song_detail'
+  | 'create_playlist'
+  | 'edit_playlist'
+  | 'playlist_detail'
+  | 'add_to_playlist';
 
