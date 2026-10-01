@@ -454,50 +454,54 @@ export const PlaylistDetailModal: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Right: Quality Badge, Duration & Actions */}
-                    <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+                    {/* Right: Quality Badge, Duration (Idle) / Actions (Hover) */}
+                    <div className="flex items-center justify-end shrink-0 min-w-[70px]">
                       <Badge
                         variant="bronze"
-                        className="hidden md:inline-flex text-[10px] px-2 py-0.5"
+                        className="hidden md:inline-flex text-[10px] px-2 py-0.5 mr-3"
                       >
                         {song.format || 'Lossless'}
                       </Badge>
 
-                      <span className="font-mono text-xs text-vault-muted">
+                      {/* Thời lượng: Mặc định hiện, ẩn khi rê chuột */}
+                      <span className="font-mono text-xs text-vault-muted group-hover:hidden tabular-nums">
                         {formatTime(song.duration)}
                       </span>
 
-                      {/* Hide/Unhide Action Button */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={(e) => handleToggleHide(song.id, e)}
-                            className={`p-1.5 rounded-xl border transition-all ${
-                              isHidden
-                                ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 hover:bg-amber-500/30'
-                                : 'bg-white/5 border-white/10 text-vault-muted hover:text-vault-text hover:bg-white/15'
-                            }`}
-                          >
-                            {isHidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {isHidden ? 'Bỏ ẩn bài hát này' : 'Ẩn bài hát (không phát khi Play All)'}
-                        </TooltipContent>
-                      </Tooltip>
+                      {/* Cụm Action Buttons: Ẩn mặc định, xuất hiện thay thế thời lượng khi hover */}
+                      <div className="hidden group-hover:flex items-center gap-1.5 transition-all duration-150 animate-in fade-in">
+                        {/* Hide/Unhide Action Button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => handleToggleHide(song.id, e)}
+                              className={`p-1.5 rounded-xl border transition-all cursor-pointer ${
+                                isHidden
+                                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 hover:bg-amber-500/30'
+                                  : 'bg-white/5 border-white/10 text-vault-muted hover:text-vault-text hover:bg-white/15'
+                              }`}
+                            >
+                              {isHidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {isHidden ? 'Bỏ ẩn bài hát này' : 'Ẩn bài hát (không phát khi Play All)'}
+                          </TooltipContent>
+                        </Tooltip>
 
-                      {/* Remove from Playlist Button */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={(e) => handleRemoveSong(song.id, e)}
-                            className="p-1.5 rounded-xl bg-white/5 border border-white/10 text-vault-muted hover:text-red-400 hover:bg-red-500/20 hover:border-red-500/30 transition-all"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>Xóa khỏi danh sách phát</TooltipContent>
-                      </Tooltip>
+                        {/* Remove from Playlist Button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => handleRemoveSong(song.id, e)}
+                              className="p-1.5 rounded-xl bg-white/5 border border-white/10 text-vault-muted hover:text-red-400 hover:bg-red-500/20 hover:border-red-500/30 transition-all cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Xóa khỏi danh sách phát</TooltipContent>
+                        </Tooltip>
+                      </div>
                     </div>
                   </div>
                 );

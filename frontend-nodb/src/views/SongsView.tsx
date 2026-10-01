@@ -285,17 +285,21 @@ export const SongsView: React.FC = () => {
                         </Badge>
                       </td>
 
-                      {/* Duration & Quick Action */}
+                      {/* Duration & Quick Action (Hover to Reveal) */}
                       <td className="px-3 sm:px-6 py-3 sm:py-4 text-right font-mono text-vault-muted text-xs sm:text-sm tabular-nums">
-                        <div className="flex items-center justify-end gap-2">
-                          <span>{formatTime(song.duration)}</span>
+                        <div className="flex items-center justify-end min-h-[32px]">
+                          {/* Duration: Hiện khi idle, ẩn khi hover */}
+                          <span className="group-hover:hidden transition-all">{formatTime(song.duration)}</span>
+
+                          {/* Quick Action: Hiện khi hover thay thế thời lượng */}
                           <button
                             type="button"
                             onClick={(e) => handleAddToPlaylist(song, e)}
                             title="Thêm vào danh sách phát"
-                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-white/15 text-vault-muted hover:text-vault-accent transition-all cursor-pointer"
+                            className="hidden group-hover:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 hover:bg-vault-accent hover:text-black text-vault-accent border border-white/10 hover:border-vault-accent transition-all cursor-pointer text-xs font-sans font-medium animate-in fade-in"
                           >
-                            <ListPlus className="w-4 h-4" />
+                            <ListPlus className="w-3.5 h-3.5" />
+                            <span className="hidden lg:inline">Thêm</span>
                           </button>
                         </div>
                       </td>

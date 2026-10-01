@@ -103,7 +103,7 @@ export const AlbumDetailModal: React.FC = () => {
                 <tr
                   key={song.id}
                   onClick={() => playSong(song, albumSongs)}
-                  className="hover:bg-white/10 cursor-pointer transition-colors"
+                  className="group hover:bg-white/10 cursor-pointer transition-colors"
                 >
                   <td className="px-3 sm:px-4 py-3 font-mono text-vault-muted text-xs">{idx + 1}</td>
                   <td className="px-3 sm:px-4 py-3 font-medium truncate max-w-[150px] sm:max-w-none">{song.title}</td>
@@ -113,12 +113,14 @@ export const AlbumDetailModal: React.FC = () => {
                     </Badge>
                   </td>
                   <td className="px-3 sm:px-4 py-3 text-right font-mono text-xs text-vault-muted">
-                    <div className="flex items-center justify-end gap-2">
-                      <span>
+                    <div className="flex items-center justify-end min-h-[28px]">
+                      {/* Thời lượng hiển thị khi idle, ẩn khi hover */}
+                      <span className="group-hover:hidden transition-all tabular-nums">
                         {Math.floor(song.duration / 60)}:
                         {Math.floor(song.duration % 60) < 10 ? '0' : ''}
                         {Math.floor(song.duration % 60)}
                       </span>
+                      {/* Nút thêm vào danh sách phát xuất hiện khi hover */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -127,9 +129,10 @@ export const AlbumDetailModal: React.FC = () => {
                           setActiveModal('add_to_playlist');
                         }}
                         title="Thêm vào danh sách phát"
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-white/15 text-vault-muted hover:text-vault-accent transition-all cursor-pointer"
+                        className="hidden group-hover:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 hover:bg-vault-accent hover:text-black text-vault-accent border border-white/10 hover:border-vault-accent transition-all cursor-pointer text-xs font-sans font-medium animate-in fade-in"
                       >
                         <ListPlus className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Thêm</span>
                       </button>
                     </div>
                   </td>
