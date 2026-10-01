@@ -7,6 +7,7 @@ import {
   Pause,
   SkipBack,
   SkipForward,
+  Volume1,
   Volume2,
   VolumeX,
   Music,
@@ -201,10 +202,16 @@ export const PlayerDock: React.FC = () => {
                   onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
                   className="text-vault-muted hover:text-vault-text transition-colors cursor-pointer"
                 >
-                  {volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                  {volume === 0 ? (
+                    <VolumeX className="w-4 h-4 text-red-400" />
+                  ) : volume < 0.5 ? (
+                    <Volume1 className="w-4 h-4" />
+                  ) : (
+                    <Volume2 className="w-4 h-4" />
+                  )}
                 </button>
               </TooltipTrigger>
-              <TooltipContent>{volume === 0 ? 'Bật âm thanh' : 'Tắt tiếng'}</TooltipContent>
+              <TooltipContent>{volume === 0 ? 'Bật âm thanh' : `Âm lượng: ${Math.round(volume * 100)}% (Nhấn để tắt tiếng)`}</TooltipContent>
             </Tooltip>
 
             <div className="w-20">

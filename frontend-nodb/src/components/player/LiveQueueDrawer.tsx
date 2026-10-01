@@ -89,7 +89,7 @@ export const LiveQueueDrawer: React.FC = () => {
       style={{ willChange: 'transform' }}
     >
       {/* Blurred background as a separate non-scrolling layer */}
-      <div className="absolute inset-0 bg-[#0E1015]/65 backdrop-blur-3xl border-l border-white/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-[#0C0A09]/80 backdrop-blur-3xl border-l border-vault-border pointer-events-none" />
 
       {/* Scrollable content layer – no blur, no heavy effects */}
       <div className="relative z-10 flex flex-col h-full p-6">

@@ -15,48 +15,49 @@ export default {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "var(--destructive)",
+          foreground: "var(--destructive-foreground)",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "var(--popover)",
+          foreground: "var(--popover-foreground)",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "var(--card)",
+          foreground: "var(--card-foreground)",
         },
-        // Music Vault Custom Brand Palette
+        // Music Vault Custom Brand Palette (Mapped to index.css CSS Variables)
         vault: {
-          bg: "#15171C",
-          accent: "#A855F7",
-          bronze: "#D4A66A",
-          text: "#EDEFF3",
-          muted: "#8A9099",
-          glass: "rgba(255, 255, 255, 0.06)",
-          border: "rgba(255, 255, 255, 0.14)",
+          bg: "var(--vault-bg)",
+          accent: "var(--vault-accent)",
+          bronze: "var(--vault-bronze)",
+          text: "var(--vault-text)",
+          muted: "var(--vault-muted)",
+          glass: "var(--vault-glass)",
+          border: "var(--vault-border)",
+          glow: "var(--vault-glow)",
         }
       },
       borderRadius: {
@@ -69,8 +70,8 @@ export default {
         dock: "24px",
       },
       boxShadow: {
-        glass: "0 12px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(124, 134, 245, 0.15)",
-        dock: "0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+        glass: "var(--shadow-glass)",
+        dock: "var(--shadow-dock)",
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

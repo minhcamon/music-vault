@@ -25,11 +25,11 @@ export default function App() {
     <UIProvider>
       <LibraryProvider>
         <AudioProvider>
-          <div className="relative flex h-screen w-screen overflow-hidden bg-[#0A0C10] text-vault-text select-none">
-            {/* Apple Music Ambient Blur Orbs - GPU Accelerated & Hardware Isolated */}
-            <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-indigo-600/25 via-purple-600/20 to-pink-600/15 blur-[100px] pointer-events-none transform-gpu z-0" />
-            <div className="absolute bottom-[-10%] right-[-5%] w-[550px] h-[550px] rounded-full bg-gradient-to-br from-violet-600/20 via-indigo-600/15 to-blue-600/20 blur-[110px] pointer-events-none transform-gpu z-0" />
-            <div className="absolute top-[35%] right-[25%] w-[400px] h-[400px] rounded-full bg-pink-600/10 blur-[100px] pointer-events-none transform-gpu z-0" />
+          <div className="relative flex h-screen w-screen overflow-hidden bg-[#0C0A09] text-vault-text select-none">
+            {/* Ambient Tube Glow & Warm Light Orbs - GPU Accelerated */}
+            <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-amber-600/20 via-orange-600/15 to-amber-500/10 blur-[100px] pointer-events-none transform-gpu z-0" />
+            <div className="absolute bottom-[-10%] right-[-5%] w-[550px] h-[550px] rounded-full bg-gradient-to-br from-amber-700/15 via-stone-800/20 to-amber-600/10 blur-[110px] pointer-events-none transform-gpu z-0" />
+            <div className="absolute top-[35%] right-[25%] w-[400px] h-[400px] rounded-full bg-amber-500/10 blur-[100px] pointer-events-none transform-gpu z-0" />
 
             <Sidebar />
             <div className="flex-1 flex flex-col overflow-hidden pb-36 md:pb-28 relative z-10">

@@ -15,6 +15,11 @@ import {
   Music,
   Repeat,
   Repeat1,
+  Volume1,
+  Volume2,
+  VolumeX,
+  Plus,
+  Minus,
 } from 'lucide-react';
 import { Slider } from '../ui/slider';
 import { Badge } from '../ui/badge';
@@ -22,6 +27,7 @@ import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { VinylRecord } from '../common/VinylRecord';
 import { CoverImage } from '../common/CoverImage';
+import { useCoverUrl } from '../../hooks/useCoverUrl';
 
 export const SongDetailModal: React.FC = () => {
   const { activeModal, setActiveModal, selectedSong, isQueueDrawerOpen, setIsQueueDrawerOpen } = useUI();
@@ -30,6 +36,8 @@ export const SongDetailModal: React.FC = () => {
     isPlaying,
     currentTime,
     duration,
+    volume,
+    setVolume,
     repeatMode,
     toggleRepeatMode,
     playSong,
@@ -42,6 +50,28 @@ export const SongDetailModal: React.FC = () => {
   const [timeString, setTimeString] = useState<string>('');
   const [dateString, setDateString] = useState<string>('');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isVolumeOpen, setIsVolumeOpen] = useState<boolean>(false);
+  const [prevVolume, setPrevVolume] = useState<number>(0.8);
+
+  const toggleMute = () => {
+    if (volume > 0) {
+      setPrevVolume(volume);
+      setVolume(0);
+    } else {
+      setVolume(prevVolume > 0 ? prevVolume : 0.8);
+    }
+  };
+
+  const handleDecreaseVolume = () => {
+    setVolume(Math.max(0, Math.round((volume - 0.05) * 100) / 100));
+  };
+
+  const handleIncreaseVolume = () => {
+    setVolume(Math.min(1, Math.round((volume + 0.05) * 100) / 100));
+  };
+
+  const targetSong = currentSong || selectedSong;
+  const coverUrl = useCoverUrl(targetSong?.coverId, targetSong?.coverBlobUrl);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -104,8 +134,6 @@ export const SongDetailModal: React.FC = () => {
   };
 
   if (activeModal !== 'song_detail') return null;
-
-  const targetSong = currentSong || selectedSong;
   if (!targetSong) return null;
 
   const isCurrentPlaying = currentSong?.id === targetSong.id && isPlaying;
@@ -128,22 +156,22 @@ export const SongDetailModal: React.FC = () => {
 
   return (
     <TooltipProvider>
-      <div className="fixed inset-0 z-50 bg-[#0B0D11] text-[#EDEFF3] flex flex-col justify-between overflow-hidden animate-in fade-in duration-300 selection:bg-vault-accent selection:text-white no-scrollbar">
+      <div className="fixed inset-0 z-50 bg-[#0C0A09] text-[#FAFAF9] flex flex-col justify-between overflow-hidden animate-in fade-in duration-300 selection:bg-vault-accent selection:text-white no-scrollbar">
         {/* Blurred Cover Art Background Backdrop */}
-        {targetSong.coverBlobUrl ? (
+        {coverUrl ? (
           <div key={`bg-wrapper-${targetSong.id}`} className="absolute inset-0 pointer-events-none z-0 overflow-hidden animate-album-swap" aria-hidden="true">
             <img
               key={`bg-img-${targetSong.id}`}
-              src={targetSong.coverBlobUrl}
+              src={coverUrl}
               alt=""
               className={`w-full h-full object-cover blur-md opacity-85 scale-100 brightness-90 contrast-110 transition-all duration-1000 ${
                 isCurrentPlaying ? 'animate-pulse' : 'grayscale-[10%]'
               }`}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0D11] via-[#0B0D11]/40 to-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0C0A09] via-[#0C0A09]/40 to-black/20" />
           </div>
         ) : (
-          <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-br from-vault-accent/30 via-[#0B0D11] to-purple-950/50" />
+          <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-br from-amber-600/25 via-[#0C0A09] to-stone-900/60" />
         )}
 
         {/* Top Studio Monitor Navigation Header */}
@@ -356,6 +384,96 @@ export const SongDetailModal: React.FC = () => {
                   <TooltipContent>Bài tiếp</TooltipContent>
                 </Tooltip>
 
+                {/* 5. Volume Button with Vertical Dropdown / Popover (Trước Playlist) */}
+                <div
+                  className="relative flex items-center justify-center"
+                  onMouseEnter={() => setIsVolumeOpen(true)}
+                  onMouseLeave={() => setIsVolumeOpen(false)}
+                >
+                  {/* Vertical Popover Slider Card */}
+                  <div
+                    className={`absolute bottom-full mb-3 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 p-2.5 rounded-2xl bg-black/90 backdrop-blur-2xl border border-white/20 shadow-2xl transition-all duration-200 z-50 ${
+                      isVolumeOpen
+                        ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
+                        : 'opacity-0 translate-y-2 pointer-events-none scale-95'
+                    }`}
+                  >
+                    {/* Step Up */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={handleIncreaseVolume}
+                          disabled={volume >= 1}
+                          className="text-vault-muted hover:text-vault-text rounded-lg h-7 w-7 p-0 disabled:opacity-30"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">Tăng (+5%)</TooltipContent>
+                    </Tooltip>
+
+                    {/* Vertical Slider */}
+                    <div className="h-28 w-6 flex items-center justify-center py-1">
+                      <Slider
+                        orientation="vertical"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={[volume]}
+                        onValueChange={(val) => setVolume(val[0])}
+                        className="h-full"
+                      />
+                    </div>
+
+                    {/* Step Down */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={handleDecreaseVolume}
+                          disabled={volume <= 0}
+                          className="text-vault-muted hover:text-vault-text rounded-lg h-7 w-7 p-0 disabled:opacity-30"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">Giảm (-5%)</TooltipContent>
+                    </Tooltip>
+
+                    {/* Percentage */}
+                    <span className="font-mono text-[10px] font-bold text-vault-accent tabular-nums pt-1 border-t border-white/10 w-full text-center">
+                      {Math.round(volume * 100)}%
+                    </span>
+                  </div>
+
+                  {/* Volume Trigger Button */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={volume === 0 ? 'ghost' : isVolumeOpen ? 'default' : 'ghost'}
+                        size="icon"
+                        onClick={toggleMute}
+                        className="rounded-xl relative"
+                      >
+                        {volume === 0 ? (
+                          <VolumeX className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
+                        ) : volume < 0.5 ? (
+                          <Volume1 className="w-5 h-5 sm:w-6 sm:h-6" />
+                        ) : (
+                          <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {volume === 0 ? 'Bật âm thanh (Unmute)' : `Âm lượng: ${Math.round(volume * 100)}% (Nhấn để tắt tiếng)`}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+
+                {/* 6. Playlist / Hàng đợi phát nhạc */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -367,7 +485,7 @@ export const SongDetailModal: React.FC = () => {
                       <ListMusic className="w-5 h-5 sm:w-6 sm:h-6" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Hàng đợi phát nhạc</TooltipContent>
+                  <TooltipContent>Hàng đợi phát nhạc (Playlist)</TooltipContent>
                 </Tooltip>
               </div>
             </div>

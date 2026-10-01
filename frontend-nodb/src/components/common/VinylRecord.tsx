@@ -61,9 +61,9 @@ export const VinylRecord: React.FC<VinylRecordProps> = ({
       className={`relative flex items-center justify-center select-none ${className}`}
       style={{ width: size, height: size }}
     >
-      {/* Volumetric Soft Purple Ambient Glow & Rim Light */}
+      {/* Volumetric Warm Amber Tube Glow & Rim Light */}
       <div
-        className={`absolute inset-[-12px] rounded-full bg-gradient-to-tr from-purple-500/50 via-fuchsia-600/40 to-purple-800/50 blur-2xl transition-opacity duration-1000 pointer-events-none ${
+        className={`absolute inset-[-12px] rounded-full bg-gradient-to-tr from-amber-600/40 via-orange-600/35 to-amber-500/40 blur-2xl transition-opacity duration-1000 pointer-events-none ${
           isPlaying ? 'opacity-95 animate-pulse' : 'opacity-40'
         }`}
       />
@@ -81,12 +81,12 @@ export const VinylRecord: React.FC<VinylRecordProps> = ({
         }}
       >
         <defs>
-          {/* Vibrant Royal Purple Luxury Center Label Gradient */}
+          {/* Amber & Brass Luxury Center Label Gradient */}
           <linearGradient id="centerLabelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#E9D5FF" />
-            <stop offset="35%" stopColor="#C084FC" />
-            <stop offset="70%" stopColor="#A855F7" />
-            <stop offset="100%" stopColor="#7E22CE" />
+            <stop offset="0%" stopColor="#FEF3C7" />
+            <stop offset="35%" stopColor="#FCD34D" />
+            <stop offset="70%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#D97706" />
           </linearGradient>
 
           {/* Glass Specular Gloss Sheen */}
@@ -96,20 +96,20 @@ export const VinylRecord: React.FC<VinylRecordProps> = ({
             <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </linearGradient>
 
-          {/* Vibrant Purple Edge Rim Light Gradient */}
+          {/* Warm Amber-Brass Edge Rim Light Gradient */}
           <linearGradient id="rimLight" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#F3E8FF" stopOpacity="0.95" />
-            <stop offset="40%" stopColor="#C084FC" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#7E22CE" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="#FFFBEB" stopOpacity="0.95" />
+            <stop offset="40%" stopColor="#F59E0B" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#D97706" stopOpacity="0.9" />
           </linearGradient>
 
-          {/* High-End Deep Black Radial Vinyl Base */}
+          {/* High-End Deep Charcoal Radial Vinyl Base */}
           <radialGradient id="vinylBase" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#08090C" />
-            <stop offset="55%" stopColor="#111319" />
-            <stop offset="85%" stopColor="#0B0C10" />
-            <stop offset="97%" stopColor="#161822" />
-            <stop offset="100%" stopColor="#060709" />
+            <stop offset="0%" stopColor="#0C0A09" />
+            <stop offset="55%" stopColor="#1C1917" />
+            <stop offset="85%" stopColor="#141210" />
+            <stop offset="97%" stopColor="#292524" />
+            <stop offset="100%" stopColor="#0C0A09" />
           </radialGradient>
 
           {/* Subdued Glow Filter */}
